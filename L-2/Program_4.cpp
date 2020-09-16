@@ -11,21 +11,15 @@ int main() {
 	std::cin >> x;
 	
 	long double reference = sin(x), result = 0.0;
-	
 	long int counter = 0, factorial = 1, stop = 100; 
 	short int n = -1;
 	
-	
 	for (counter=0; counter < stop; counter++){
-	
-		n = (-1)*n;
 		
-		factorial *= 2*counter+1;
+		n = (-1)*n; // обход pow(-1,counter)
+		factorial *= 2*counter+1; // обход лишних расчётов (факториал)
 		
 		result += (long double) n*(pow(x,2*counter+1)/(factorial));
-		
-		std::cout << reference << " " << result << " " << counter << " " << factorial << "\n";
-		
 		}
 	
 	std::cout << "\nОтвет:" << result;

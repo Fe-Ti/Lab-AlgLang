@@ -7,7 +7,7 @@ int main() {
 	unsigned char ch;
 	
 	for (ch=0;ch<=127;ch++){
-		
+		// последовательный вывод символов таблицы
 		std::cout << ch << " == " << static_cast<int>(ch) << '\n';
 		
 		}

@@ -6,7 +6,7 @@ int main() {
 	
 	std::cout << "Здравствуйте!\n";
 	
-	uint64_t x = 0;
+	uint64_t x = 0; // unsigned long int
 	
 	std::cout << "Введите Х\n";
 	std::cin >> x;
@@ -14,6 +14,7 @@ int main() {
 	double y = 0;
 	
 	switch (x % 4){
+		
 		case 0 : {y = -1; break;}
 		case 1 : {y = x; break;}
 		case 2 : {y = 1/(static_cast<double>(x)); break;}
