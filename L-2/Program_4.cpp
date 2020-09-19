@@ -18,8 +18,8 @@ int main() {
 		
 		n = (-1)*n; // обход pow(-1,counter)
 		factorial *= 2*counter+1; // обход лишних расчётов (факториал)
+		result += const_cast<long double>(n*(pow(x,2*counter+1)/(factorial)));
 		
-		result += (long double) n*(pow(x,2*counter+1)/(factorial));
 		}
 	
 	std::cout << "\nОтвет:" << result;
