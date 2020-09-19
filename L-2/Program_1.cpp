@@ -56,25 +56,34 @@ int main() {
 	
 	std::cout << "Ответ: " << std::endl;
 	std::cout << y << std::endl;
+	
 	////////////////////////////////////////////////////////////////////
 	// Задача 4 
 	double x_4 = 0.0;
 	std::cout << "Введите x " << std::endl;
 	std::cin >> x_4;
+	short int pr_power = 0;
+	std::cout << "Введите степень точности (до 10*pr_power)" << std::endl;
+	std::cin >> pr_power;
 	
-	long double reference = sin(x_4), result = 0.0;
-	long int counter = 0, factorial = 1, stop = 100; 
-	short int n = -1;
 	
-	for (counter=0; counter < stop; counter++){
+	long double reference = sin(x_4), result = static_cast<double>(x_4), precision = pow(10,pr_power);
+	long long counter = 1, factorial = 1, f_counter=3; 
+	short int n = 1;
+	
+	while ((result-reference > precision)||(reference-result > precision)){
 		
 		n = (-1)*n; // обход pow(-1,counter)
-		factorial *= 2*counter+1; // обход лишних расчётов (факториал)
-		result += static_cast<double>(n*(pow(x_4,2*counter+1)/(factorial)));
+		factorial *= (f_counter-1)*(f_counter); // обход лишних расчётов (факториал)
+		result += static_cast<long double>(n*(pow(x_4,2*counter+1)/(factorial)));
+		// std::cout << factorial << " " << n << " " << counter << " "<<std::setprecision(12) << result << " " << reference << std::endl;
+		f_counter+=2;
+		counter++;
 		
 		}
 	
 	std::cout << "Ответ:" << result << std::endl;
+	std::cout << "Референс:" << reference << std::endl;
 	std::cout << "Разность значений:" << reference-result << std::endl;
 	std::cout << "Число итераций:" << counter << std::endl;
 	
