@@ -29,7 +29,9 @@ int main (){
             summ+=dyn_array[i];
             }
         }
-    std::cout << summ;
+    std::cout << "The summ is " << summ;
 
     delete[] dyn_array;
+    return 0;
+
 }

@@ -20,4 +20,6 @@ int main (){
         summ+=s_array[i];
     }
     std::cout << std::endl << "summ(s_array)/s_array[9]:" << static_cast<double>(summ)/s_array[9];
+    return 0;
+
 }
