@@ -6,7 +6,7 @@ int main (){
     std::cout << "Enter m: ";
     std::cin >> m;
 
-    std::vector<int> v;
+    std::vector<int> v{};
     int element = 0, summ = 0, it=0;
     for (int i=0;i<m;i++){
         std::cout << "Enter "<<i<<" element: " << std::endl;
@@ -23,12 +23,13 @@ int main (){
     std::cout << "The summ is " << summ << std::endl;
 
     for (int i : v){
+        // std::cout << it << '\n';
         if (i == 0){
+            // std::cout << it << '\n';
             v.erase(v.begin()+it);
             break;
+            }
         it++;
-        }
-
     }
     it=0;
     for (int i : v ){
