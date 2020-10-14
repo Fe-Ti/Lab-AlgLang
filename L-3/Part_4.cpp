@@ -14,13 +14,13 @@ std::string replace_word(std::string &str_to_mod,
     int w_size = word.size(),
         begin_pos = 0,
         end_pos = begin_pos + w_size;
-    /*
 
+    /*
     Сначала замена первого слова,
     затем в цикле послед.замена can
     и избежание "автоклава"
-
     */
+
     str_to_mod = str_to_mod.replace( begin_pos,
                                      w_size,
                                      replacement);
