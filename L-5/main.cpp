@@ -44,7 +44,6 @@ main()
     //    std::cout << i.first << " " << i.second << std::endl;
     //  }
 
-    std::cout << "f*ck this task ";
     std::cout << std::count_if(simple_map.begin(),
                                simple_map.end(),
                                [](auto& i) { return i.first < 0; });
