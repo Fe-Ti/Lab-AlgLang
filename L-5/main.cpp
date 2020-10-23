@@ -1,17 +1,15 @@
 #include <algorithm>
 #include <iostream>
 #include <map>
+#include <set>
 #include <string>
 #include <unordered_map>
 #include <vector>
 
 void
-print_vec(const std::vector<int>& vec)
+stupid_simple_print_func(int number)
 {
-    for (int i : vec) {
-        std::cout << i << ", ";
-    }
-    std::cout << std::endl;
+    std::cout << number << " ";
 }
 
 int
@@ -29,20 +27,15 @@ main()
     umap.insert({ 6, "321" });
     umap.insert({ 6, "312" });
     umap.insert({ 6, "132" });
-    // for (std::pair<const int, std::string> i : umap) {
     std::map<int, std::string> simple_map;
 
     for (auto& i : umap) {
         simple_map[i.first] = i.second;
-        //        std::cout << i.first << " " << i.second << std::endl;
     }
     std::cout << std::endl;
 
-    ///////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////
     // Part 2
-    //  for (auto& i : simple_map) {
-    //    std::cout << i.first << " " << i.second << std::endl;
-    //  }
 
     std::cout << std::count_if(simple_map.begin(),
                                simple_map.end(),
@@ -54,5 +47,37 @@ main()
                    simple_map.end(),
                    output_vec.begin(),
                    [](std::pair<const int, std::string> i) { return i.first; });
-    print_vec(output_vec);
+
+    std::for_each(
+      output_vec.begin(), output_vec.end(), stupid_simple_print_func);
+    std::cout << std::endl;
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Part 3
+
+    int num_to_search = 6;
+    auto position =
+      std::find(output_vec.begin(), output_vec.end(), num_to_search);
+    std::cout << std::distance(output_vec.begin(), position) << std::endl;
+    std::cout << std::endl;
+
+    std::replace_if(
+      output_vec.begin(), output_vec.end(), [](int i) { return i < 0; }, -2);
+    std::for_each(
+      output_vec.begin(), output_vec.end(), stupid_simple_print_func);
+    std::cout << std::endl;
+
+    std::sort(output_vec.begin(), output_vec.end(), std::greater<int>());
+    std::for_each(
+      output_vec.begin(), output_vec.end(), stupid_simple_print_func);
+    std::cout << std::endl;
+
+    std::set<int> simple_set;
+    for (int i : output_vec) {
+        simple_set.insert(i);
+    }
+    std::for_each(
+      simple_set.begin(), simple_set.end(), stupid_simple_print_func);
+
+    return 0;
 }
