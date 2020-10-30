@@ -1,61 +1,77 @@
 #include <iostream>
 
 struct Node {
-    Node* next_adress;
+    Node* next_address;
     long int value;
 };
 
 struct Stack {
-    Node* enadress;
+    Node* enaddress;
+    long int stack_size;
 };
 
 void constructor(Stack& stk)
 {
-    stk.enadress = nullptr;
+    stk.enaddress = nullptr;
+    stk.stack_size = 0;
 }
 
 
 int new_pop(Stack& stk)
 {
-    long int value = stk.enadress->value;
-    Node* poped_node = stk.enadress;
-
-    stk.enadress = poped_node->next_adress;
-
+    long int value = stk.enaddress->value;
+    Node* poped_node = stk.enaddress;
+//    std::cout << "next address is " << poped_node->next_address << std::endl;
+    stk.enaddress = poped_node->next_address;
     delete poped_node;
-
+    --stk.stack_size;
     return value;
 }
 
 void new_push(Stack& stk, long int value)
 {
     Node* pushed_node;
-    Node* addr = stk.enadress;
+    Node* addr = stk.enaddress;
     pushed_node = new Node {addr, value};
-    stk.enadress = pushed_node;
+    stk.enaddress = pushed_node;
+    ++stk.stack_size;
 }
 
+long int new_size(const Stack& stk)
+{
+    return stk.stack_size;
+}
 
 void destructor(Stack& stk)
 {
-    while (stk.enadress != nullptr) {
+    while (stk.enaddress != nullptr) {
         new_pop(stk);
     };
 }
 
 int main()
 {
-    char a;
-    std::cin >> a;
-
+    std::cout << "|Declaring queue...|" << std::endl;
     Stack test;
-    constructor(test);
-    for (long int i = 0; i < 10000000; ++i)
-        new_push(test,i);
-    std::cout << "POPPING" << std::endl;
 
-    std::cin >> a;
+    std::cout << "|Constructing...|" << std::endl;
+    constructor(test);
+
+    std::cout << "|Pushing!|" << std::endl;
+    for ( int i = 0; i < 10; ++i) {
+        new_push(test,i);
+        std::cout << "stack size is " << new_size(test);
+        std::cout << std::endl;
+    }
+
+    std::cout << "|Popping!|" << std::endl;
+    for ( int i = 0; i < 5; ++i) {
+        std::cout << new_pop(test) << std::endl;
+        std::cout << "stack size is " << new_size(test);
+        std::cout << std::endl;
+    }
+
+    std::cout << "|Destructing...|" << std::endl;
     destructor(test);
-    std::cin >> a;
     return 0;
 }
