@@ -1,18 +1,18 @@
 #include <iostream>
 
 struct Node {
-    Node* next_address;
-    long int value;
+    Node* next_address;  // address of the next item
+    long int value;  // item value
 };
 
 struct Stack {
-    Node* enaddress;
-    long int stack_size;
+    Node* enaddress;  // stack end
+    unsigned long int stack_size;  // stack size
 };
 
 void constructor(Stack& stk)
 {
-    stk.enaddress = nullptr;
+    stk.enaddress = nullptr;  // initializing?
     stk.stack_size = 0;
 }
 
@@ -21,7 +21,6 @@ int new_pop(Stack& stk)
 {
     long int value = stk.enaddress->value;
     Node* poped_node = stk.enaddress;
-//    std::cout << "next address is " << poped_node->next_address << std::endl;
     stk.enaddress = poped_node->next_address;
     delete poped_node;
     --stk.stack_size;

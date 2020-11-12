@@ -29,22 +29,22 @@ std::vector<std::string> split (std::string &str, char ch = ' ')
     }
     return substr_list;  // returning our vector
 }
-
-void
-print_vec(const std::vector<auto>& vec)
-{
-  for (auto &i : vec) {
-    std::cout << i << "  <---element\n";
-  }
-  std::cout << std::endl;
-}
-
-int main()
-{
-    std::string line = "";
-    char ch=' ';
-    getline(std::cin, line);
-    std::cin >> ch;
-    print_vec(split(line, ch));
-    return 0;
-}
+//
+//void
+//print_vec(const std::vector<auto>& vec)
+//{
+//  for (auto &i : vec) {
+//    std::cout << i << "  <---element\n";
+//  }
+//  std::cout << std::endl;
+//}
+//
+//int main()
+//{
+//    std::string line = "";
+//    char ch=' ';
+//    getline(std::cin, line);
+//    std::cin >> ch;
+//    print_vec(split(line, ch));
+//    return 0;
+//}

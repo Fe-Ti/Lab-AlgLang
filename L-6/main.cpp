@@ -4,6 +4,8 @@
 #include <string>
 #include <vector>
 
+#include "split.h"
+
 struct discipline {
     std::string name = "";  // The name of the discipline
     unsigned short int mark = 0;  // student's mark
@@ -14,34 +16,34 @@ struct student {
     std::vector<discipline> session_results{};
 };
 
-std::vector<std::string> split (std::string &str, char ch = ' ')
-{
-    std::vector<std::string> substr_list(0); // vector for output
-    bool flag = 1;  // just a flag for signalling
-    for (char i : str) {
-        if (i == ch) { // checking if $i is a splitting character
-            flag = 1;  // now we know that we need to start new "word"
-        } else {
-            if (flag == 0) { // if the flag is 0, we'll just push back $i
-                substr_list[substr_list.size() - 1].push_back(i);
-            } else { // if the flag == 1
-                substr_list.push_back("");  // starting new "word"
-                // and pushing back $i
-                substr_list[substr_list.size() - 1].push_back(i);
-                flag = 0;  // also we don't want to start another one
-            }
-        }
-    }
-    return substr_list;  // returning our vector
-}
+//std::vector<std::string> split (std::string &str, char ch = ' ')
+//{
+//    std::vector<std::string> substr_list(0); // vector for output
+//    bool flag = 1;  // just a flag for signalling
+//    for (char i : str) {
+//        if (i == ch) { // checking if $i is a splitting character
+//            flag = 1;  // now we know that we need to start new "word"
+//        } else {
+//            if (flag == 0) { // if the flag is 0, we'll just push back $i
+//                substr_list[substr_list.size() - 1].push_back(i);
+//            } else { // if the flag == 1
+//                substr_list.push_back("");  // starting new "word"
+//                // and pushing back $i
+//                substr_list[substr_list.size() - 1].push_back(i);
+//                flag = 0;  // also we don't want to start another one
+//            }
+//        }
+//    }
+//    return substr_list;  // returning our vector
+//}
 
 
 //std::vector<std::string>
 void
-read_db(const std::string& db_name,
+read_db(std::ifstream& studb,
         std::vector<student>& group, int limit = 1)
 {
-    std::ifstream studb(db_name);
+//    std::ifstream studb(db_name);
 
     student cur_student{"",{}};
     discipline cur_discipline{"",0};
@@ -77,10 +79,17 @@ read_db(const std::string& db_name,
         }
         getline(studb, line);
     }
-    studb.close();
+//    studb.close();
 
 //    return group;
 }
+
+void operator >> (std::ifstream& studb,
+        std::vector<student>& group)
+        {
+            read_db(studb, group);
+        }
+
 void
 print_db (const std::vector<student>& group)
 {
@@ -107,8 +116,8 @@ analyze (const std::vector<student>& group, student& status)
             {
                 pos = std::distance(disc_names.begin(), is_in_disc);
                 buffer = static_cast<float>(j.mark);
-                buffer += static_cast<float>(status.session_results[pos]);
-                status.session_results. = buffer / 2;
+                buffer += static_cast<float>(status.session_results[pos].mark);
+                status.session_results[pos].mark = buffer / 2;
             }
             else
             {
@@ -129,7 +138,10 @@ int main()
         if (action == "read") {
             group.clear();
             status.session_results.clear();
-            read_db("students.txt", group);
+            std::ifstream studb("students.txt");
+            studb >> group;
+            studb.close();
+            //read_db("students.txt", group);
             analyze(group, status);
         }
         if (action == "print") {

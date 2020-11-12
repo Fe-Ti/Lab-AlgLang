@@ -8,7 +8,7 @@ struct Node {
 struct Queue {
     Node* bnaddress;
     Node* enaddress;
-    long int queue_size;
+    unsigned long int queue_size;
 };
 
 void constructor(Queue& que)
