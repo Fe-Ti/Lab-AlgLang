@@ -1,11 +1,11 @@
 // Copyright 2020 Fe-Ti <btm.007@mail.ru>
 //
 
+#include <bitset>
 #include <cstdlib>
 #include <filesystem>
 #include <iostream>
 #include <string>
-#include <bitset>
 
 namespace stdfs = std::filesystem;
 
@@ -31,9 +31,8 @@ main()
         {
             pwd();
         }
-        std::cout << std::bit
-        getline(std::cin, action);
+        std::cout << std::bit getline(std::cin, action);
     } while(action != "exit");
 
-      return 0;
+    return 0;
 }
