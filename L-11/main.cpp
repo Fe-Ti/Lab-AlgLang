@@ -5,6 +5,7 @@
 #include <ctime>
 #include <iostream>
 #include <mutex>
+#include <string>
 #include <thread>
 #include <vector>
 
@@ -76,13 +77,18 @@ find_max_int_st(const std::vector<int>& vec)
 }
 
 int
-main()
+main(int argc, char* argv[])
 {
     int st; // singlethreaded max
     int mt; // multithreaded max
     int t_count;
-    std::cout << "Enter thread count:" << std::endl;
-    std::cin >> t_count;
+    if(argc > 1) {
+        t_count = std::atoi(argv[1]);
+        std::cout << t_count << std::endl;
+    } else {
+        std::cout << "Enter thread count:" << std::endl;
+        std::cin >> t_count;
+    }
 
     for(long int len = 4; len < 400000001; len *= 10) {
         std::cout << "-------------------------" << std::endl;
@@ -107,7 +113,7 @@ main()
         auto mtt = std::chrono::duration_cast<std::chrono::microseconds>(
                      end_mt - start_mt)
                      .count();
-                     
+
         std::cout << "           st =+= mt" << std::endl;
         std::cout << "QC: " << st << " =+= " << mt << std::endl;
         std::cout << "time: " << stt << " =+= " << mtt << std::endl;

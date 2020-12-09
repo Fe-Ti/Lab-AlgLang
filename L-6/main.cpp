@@ -1,9 +1,12 @@
 // Copyright 2020 Fe-Ti <btm.007@mail.ru>
 
+#include <fstream>
 #include <iostream>
 #include <vector>
 
 std::string HELP = "Press [F] to pay respects.";
+std::string db_name_b = "groupDB.bny";
+std::string db_name_t = "groupDB.txt";
 
 struct discipline {
     char d_name[80];
@@ -13,7 +16,7 @@ struct discipline {
 struct student {
     char s_name[80];
     unsigned int d_num;
-    discipline* d_array;
+    discipline* d_array = new discipline[d_num];
 };
 
 struct file_header {
@@ -21,28 +24,76 @@ struct file_header {
 };
 
 void
-save()
+b_write(std::vector<student>&group)
 {
+    std::ofstream ofile(db_name_b, std::ios::binary);
+    
+    for (student i : group)
+    {
+        ofile.write()
+    }
 }
-void
-load()
+
+void operator <<(std::vector<student> group)
 {
+    std::ofstream of(db_name_t);
 }
+
 void
-edit()
+save(std::vector<student>& group)
 {
+    std::string action;
+    std::getline(std::cin, action);
+    if(action == "bin") {
+        b_write(group);
+    } else if(action == "text") {
+        <<(group);
+    } else {
+        std::cout << action << ": command not found" std::endl;
+    }
 }
+
 void
-print()
+b_read()
 {
+    std::ifstream ifile(db_name_b, std::ios::binary);
+    ifile.read(reinterpret_cast<char*>(&buffer_b), sizeof(buffer_b));
 }
+
 void
-create()
+t_read()
 {
+    std::ifstream ifile(db_name_t);
 }
+
 void
-clear()
+load(std::vector<student>& group)
 {
+    std::string action;
+}
+
+void
+edit(std::vector<student>& group)
+{
+    std::string action;
+}
+
+void
+print(std::vector<student>& group)
+{
+    
+}
+
+void
+clear(std::vector<student>& group)
+{
+    
+}
+
+void
+settings()
+{
+    std::string action;
 }
 
 int
@@ -56,17 +107,19 @@ main()
         if(action == "load") {
 
         } else if(action == "save") {
-            save();
+            save(group);
         } else if(action == "load") {
-
+            load(group);
         } else if(action == "edit") {
-
+            edit(group);
         } else if(action == "print") {
-
+            print(group);
         } else if(action == "create") {
-
+            create(group);
         } else if(action == "clear") {
-
+            clear(group);
+        } else if(action == "settings") {
+            settings();
         } else if(action == "help") {
             std::cout << HELP << std::endl;
         } else if(action == "moo") {
