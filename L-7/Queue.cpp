@@ -20,6 +20,8 @@ void constructor(Queue& que)
 
 int new_pop(Queue& que)
 {
+    if (que.queue_size == 0)
+        return 0;
     int value = que.bnaddress->value;
     Node* poped_node = que.bnaddress;
 //    std::cout << "next address is " << poped_node->next_address << std::endl;

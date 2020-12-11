@@ -12,6 +12,7 @@ stupid_simple_print_func(int number)
     std::cout << number << " ";
 }
 
+
 int
 main()
 {
@@ -72,7 +73,7 @@ main()
       output_vec.begin(), output_vec.end(), stupid_simple_print_func);
     std::cout << std::endl;
 
-    std::set<int> simple_set;
+    std::set<int, std::less<int>> simple_set;
     for (int i : output_vec) {
         simple_set.insert(i);
     }

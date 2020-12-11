@@ -19,6 +19,8 @@ void constructor(Stack& stk)
 
 int new_pop(Stack& stk)
 {
+    if (stk.stack_size == 0)
+        return 0;
     long int value = stk.enaddress->value;
     Node* poped_node = stk.enaddress;
     stk.enaddress = poped_node->next_address;

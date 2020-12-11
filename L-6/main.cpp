@@ -24,17 +24,17 @@ struct file_header {
 };
 
 void
-b_write(std::vector<student>&group)
+b_write(std::vector<student>& group)
 {
     std::ofstream ofile(db_name_b, std::ios::binary);
-    
-    for (student i : group)
-    {
+
+    for(student i : group) {
         ofile.write()
     }
 }
 
-void operator <<(std::vector<student> group)
+void
+operator<<(std::vector<student>& group)
 {
     std::ofstream of(db_name_t);
 }
@@ -47,21 +47,29 @@ save(std::vector<student>& group)
     if(action == "bin") {
         b_write(group);
     } else if(action == "text") {
-        <<(group);
+        << (group); // the best overload ever
     } else {
         std::cout << action << ": command not found" std::endl;
     }
 }
 
 void
-b_read()
+b_read(std::vector<student>& group)
 {
+    file_header header;
+    student buff_student;
     std::ifstream ifile(db_name_b, std::ios::binary);
-    ifile.read(reinterpret_cast<char*>(&buffer_b), sizeof(buffer_b));
+
+    ifile.read(reinterpret_cast<char*>(&header), sizeof(header));
+
+    for(unsigned int i = 0; i < header.s_num; ++i) {
+        ifile.read(reinterpret_cast<char*>(&buff_student), sizeof(buff_student));
+        group.push_back(buff_student);
+    }
 }
 
 void
-t_read()
+operator>>(std::vector<student>& group)
 {
     std::ifstream ifile(db_name_t);
 }
@@ -70,6 +78,14 @@ void
 load(std::vector<student>& group)
 {
     std::string action;
+    std::getline(std::cin, action);
+    if(action == "bin") {
+        b_read(group);
+    } else if(action == "text") {
+        >> (group); // the best overload ever
+    } else {
+        std::cout << action << ": command not found" std::endl;
+    }
 }
 
 void
@@ -81,13 +97,11 @@ edit(std::vector<student>& group)
 void
 print(std::vector<student>& group)
 {
-    
 }
 
 void
 clear(std::vector<student>& group)
 {
-    
 }
 
 void
