@@ -35,8 +35,7 @@ int new_pop(Queue& que)
 void new_push(Queue& que, int value)
 {
     Node* pushed_node;
-    Node* addr = nullptr;
-    pushed_node = new Node {addr, value};
+    pushed_node = new Node {nullptr, value};
     if (que.enaddress != nullptr) {
         que.enaddress->next_address = pushed_node;
         std::cout << "set que.enaddress->next_address = " << pushed_node << std::endl;
