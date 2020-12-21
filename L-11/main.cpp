@@ -24,6 +24,8 @@ max_int_in_slice(const std::vector<int>& vec,
     }
     locker.lock();         // locking mutex for safety reasons
     buffer_cell = max_int; // writing max_int from the slice
+    std::cout << "thread #" << std::this_thread::get_id() << " found ";
+    std::cout << max_int << " as local max." << std::endl;
     locker.unlock();
 }
 
@@ -34,30 +36,29 @@ find_max_int_mt(const std::vector<int>& vec, const int t_count)
         return -1;
 
     int slice_size = vec.size() / t_count; // we need integer
-    int* buffer = new int[t_count];   // allocating memory for writing results
-    std::thread* thread_buf[t_count]; // pointer array for handling threads
+    int* buffer = new int[t_count]; // allocating memory for writing results
+    std::vector<std::thread> thread_buf; // pointer array for handling threads
 
     for(int i = 0; i < t_count; ++i) {
-        thread_buf[i]
-          = new std::thread(max_int_in_slice,
-                            vec,
-                            slice_size * i,
-                            slice_size * (i + 1),
-                            std::ref(buffer[i])); // allocating threads
+        thread_buf.push_back(
+          std::thread(max_int_in_slice,
+                      vec,
+                      slice_size * i,
+                      slice_size * (i + 1),
+                      std::ref(buffer[i]))); // allocating threads
     }
 
     for(int i = 0; i < t_count; ++i)
-        thread_buf[i]->join(); // waiting for every thread to complete the task
+        thread_buf[i].join(); // waiting for every thread to complete the task
 
     int max_int = buffer[0];
     for(int i = 1; i < t_count; ++i) {
         if(max_int < buffer[i]) { // for each max comparing it with global max
             max_int = buffer[i];
         }
-        delete thread_buf[i]; // freeing threads
     }
-    delete[] buffer; // freeing memory
-    return max_int;  // returning global max
+
+    return max_int; // returning global max
 }
 
 int
@@ -114,7 +115,7 @@ main(int argc, char* argv[])
                      end_mt - start_mt)
                      .count();
 
-        std::cout << "           st =+= mt" << std::endl;
+        std::cout << "singlethread =+= multithread" << std::endl;
         std::cout << "QC: " << st << " =+= " << mt << std::endl;
         std::cout << "time: " << stt << " =+= " << mtt << std::endl;
     }
