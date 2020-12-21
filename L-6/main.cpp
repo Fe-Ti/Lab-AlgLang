@@ -23,6 +23,7 @@ std::string SPLASH = "Something >>>SpLaSHy<<<";
 std::string db_name_b = "groupDB.bny";
 std::string db_name_t = "groupDB.txt";
 unsigned short int num_style = 0;    // 0 - C numbering; 1 - Pascal numbering
+unsigned short int num_width = 2;    // number colomn width (when printing)
 unsigned short int TERM_HEIGHT = 24; // Terminal screen height
 
 struct discipline {
@@ -250,12 +251,23 @@ edit(std::vector<student>& group, file_header& header)
 }
 
 void
-operator<<(std::iostream& out; student & buffer_student)
+operator<<(std::ostream& out, student& buffer_student)
 {
-    std::cout << std::setw(80) << buffer_student.s_name << std::endl;
-    for(size_t i; i < d_num; ++i) {
-        std::cout << std::setw(40) << buffer_student.d_arr[i].d_name;
-        std::cout << std::setw(40) << buffer_student.d_arr[i].mark << std::endl;
+    std::cout << buffer_student.s_name << std::endl;
+
+    std::cout << "|" << std::setw(num_width) << "N"
+              << "|" << std::setfill('_') << std::setw(d_name_len - 1);
+    std::cout << "Discipline";
+    std::cout << "  |  Mark" << std::endl;
+
+    for(size_t i = 0 + num_style; i < d_num + num_style; ++i) {
+
+        std::cout << "|" << std::setw(num_width) << i << "|"
+                  << std::setfill('_') << std::setw(d_name_len - 1);
+        std::cout << buffer_student.d_arr[i - num_style].d_name;
+
+        std::cout << "  |  " << buffer_student.d_arr[i - num_style].mark
+                  << std::endl;
     }
 }
 
@@ -263,7 +275,7 @@ void // TODO
 print(std::vector<student>& group, file_header& header)
 {
     if(group.size() * d_num <= TERM_HEIGHT) {
-        for(student buffer_student : &group) {
+        for(student& buffer_student : group) {
             std::cout << buffer_student;
         }
         return;
