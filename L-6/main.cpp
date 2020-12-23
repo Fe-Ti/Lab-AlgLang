@@ -1,9 +1,12 @@
 // Copyright 2020 Fe-Ti <btm.007@mail.ru>
 
+#include <algorithm>
+#include <cstdio>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
 #include <limits>
+#include <map>
 #include <vector>
 
 const unsigned int d_name_len = 40;
@@ -11,7 +14,16 @@ const unsigned int d_num = 4;
 const unsigned int s_name_len = 80;
 const unsigned int group_code_len = 21;
 
-std::string HELP = "Press [F] to pay respects.";
+std::string HELP = "Help screen:"
+"splash - splash screen\n"
+"load - load group database\n"
+"save - save group DB\n"
+"edit - edit group DB\n"
+"print - print group contents\n"
+"clear - clear the contents of the group\n"
+"help - show this help\n"
+"\nPress [F] to pay respects and continue.\n"
+;
 
 std::string EDIT_HELP = "add - to add student,\n"
                         "del - to delete one,\n"
@@ -22,9 +34,13 @@ std::string SPLASH = "Something >>>SpLaSHy<<<";
 // TODO: parameters in settings and different DB names
 std::string db_name_b = "groupDB.bny";
 std::string db_name_t = "groupDB.txt";
-unsigned short int num_style = 0;    // 0 - C numbering; 1 - Pascal numbering
-unsigned short int num_width = 2;    // number colomn width (when printing)
+unsigned short int protect_clear = 1; // 1 - enable, whatever else - disable
+unsigned short int num_style = 0;     // 0 - C numbering; 1 - Pascal numbering
+unsigned short int num_width = 5;     // number colomn width (when printing)
+unsigned short int s_num_width =
+  10; // students amount colomn width (when printing)
 unsigned short int TERM_HEIGHT = 24; // Terminal screen height
+unsigned short int TERM_WIDTH = 80;  // Terminal screen height
 
 struct discipline {
     char d_name[d_name_len];
@@ -40,6 +56,12 @@ struct file_header {
     char group_code[group_code_len] = "null";
     unsigned int s_num = 0;
     unsigned int d_num_h = d_num;
+};
+
+struct d_matrix {
+    std::vector<std::string> d_names;
+    std::vector<float> marks_sum;
+    std::vector<unsigned int> ds_nums;
 };
 
 void
@@ -92,6 +114,7 @@ b_read(std::vector<student>& group, file_header& header)
 {
 
     student buff_student;
+    file_header new_header;
     std::ifstream ifile(db_name_b, std::ios::binary);
 
     if(!ifile.is_open()) {
@@ -99,12 +122,13 @@ b_read(std::vector<student>& group, file_header& header)
         return;
     }
 
-    ifile.read(reinterpret_cast<char*>(&header), sizeof(header));
+    ifile.read(reinterpret_cast<char*>(&new_header), sizeof(new_header));
 
     if(header.d_num_h != d_num) {
         std::cout << "Database is incompatible!" << std::endl;
         return;
     } else {
+        header = new_header;
         std::cout << "There are " << header.s_num << " students with " << d_num
                   << " disciplines from " << header.group_code << "."
                   << std::endl;
@@ -133,6 +157,7 @@ operator>>(std::ifstream& ifile,
 void
 load(std::vector<student>& group, file_header& header)
 {
+    group.clear(); // when there is no protection [LOL]
     std::string action;
     std::cout << "Enter the mode(bin - for binary, text - for text):"
               << std::endl;
@@ -203,7 +228,8 @@ edit_group_code(file_header& header)
 
         std::cout << "action word len " << action.length() << ", it#0"
                   << action.length() - 1 << ", it#1"
-                  << group_code_len - action.length() + 1 << std::endl;
+                  << group_code_len - action.length() + 1
+                  << std::endl; // debug info
 
         if(action[0] == '!' && action.length() <= group_code_len) {
             for(unsigned int i = 0; i < action.length() - 1; ++i) {
@@ -258,7 +284,7 @@ operator<<(std::ostream& out, student& buffer_student)
     std::cout << "|" << std::setw(num_width) << "N"
               << "|" << std::setfill('_') << std::setw(d_name_len - 1);
     std::cout << "Discipline";
-    std::cout << "  |  Mark" << std::endl;
+    std::cout << "__|__Mark" << std::endl;
 
     for(size_t i = 0 + num_style; i < d_num + num_style; ++i) {
 
@@ -266,36 +292,148 @@ operator<<(std::ostream& out, student& buffer_student)
                   << std::setfill('_') << std::setw(d_name_len - 1);
         std::cout << buffer_student.d_arr[i - num_style].d_name;
 
-        std::cout << "  |  " << buffer_student.d_arr[i - num_style].mark
+        std::cout << "__|__" << buffer_student.d_arr[i - num_style].mark
                   << std::endl;
+    }
+}
+
+void
+print_all(std::vector<student>& group)
+{
+    for(student& buffer_student : group) {
+        std::cout << buffer_student;
     }
 }
 
 void // TODO
 print(std::vector<student>& group, file_header& header)
 {
-    if(group.size() * d_num <= TERM_HEIGHT) {
-        for(student& buffer_student : group) {
-            std::cout << buffer_student;
-        }
-        return;
-    }
+    unsigned int index = 0;
     std::string action;
+
+    if(group.size() * d_num <= TERM_HEIGHT) {
+        print_all(group);
+    }
+
+    std::cout << "There are " << header.s_num << " students with " << d_num
+              << " disciplines from " << header.group_code << "." << std::endl;
+    std::cout << "Enter the desired indexes (exit - to exit the print fnc):";
+    std::cout << std::endl;
+    std::cout << "Note: indexes start from 0, all - to print all." << std::endl;
+
+    while(action != "exit") {
+        std::cin >> action;
+        if(action == "all") {
+            print_all(group);
+        } else if(action != "exit") {
+            try {
+                index = std::stoi(action);
+                if(index < group.size()) {
+                    std::cout << group[index];
+                } else {
+                    std::cout << "There is no such index." << std::endl;
+                }
+            } catch(...) { // catching everything (I should learn more about
+                           // this thing)
+                std::cout << "ERROR!" << std::endl;
+            }
+        }
+    }
 }
 
-void // TODO
+void
 clear(std::vector<student>& group, file_header& header)
+{
+    std::string action;
+    if(protect_clear == 1) { // there we have a protection
+        std::cout << "Are you sure? [Y/n]" << std::endl;
+        if(action == std::string("Y")) {
+            group.clear();
+            header.s_num = group.size();
+        }
+    } else {
+        group.clear();
+        header.s_num = group.size();
+    }
+}
+
+void
+settings()
 {
 }
 
 void
-settings() // TODO
+analyze(std::vector<student>& group, d_matrix& mx)
 {
+    mx.d_names.clear();
+    mx.marks_sum.clear(); // cleaning the matrix
+    mx.ds_nums.clear();
+
+    std::string d_name_s;
+    unsigned short int mark;
+    const unsigned int ds_num = 1;
+    unsigned int pos;
+    auto iter = mx.d_names.begin(); // just for initialization
+
+    for(student& st : group) {
+        for(unsigned int i = 0; i < d_num; ++i) {
+            d_name_s = static_cast<std::string>(st.d_arr[i].d_name);
+            mark = st.d_arr[i].mark;
+
+            iter = std::find(mx.d_names.begin(), mx.d_names.end(), d_name_s);
+
+            if(iter == mx.d_names.end()) {
+                mx.d_names.push_back(d_name_s);
+                mx.marks_sum.push_back(mark);
+                mx.ds_nums.push_back(ds_num);
+            } else {
+                pos = std::distance(mx.d_names.begin(), iter);
+                mx.marks_sum[pos] += static_cast<float>(mark);
+                mx.ds_nums[pos] += ds_num;
+            }
+        }
+    }
+}
+
+struct { // custom function object for sort
+    bool operator()(student a, student b)
+    {
+        return a.s_name > b.s_name;
+    }
+} abcomp;
+
+void
+print_status(d_matrix& mx)
+{
+    std::cout << std::setw(TERM_WIDTH) << std::setfill('_') << "Group status:" << std::endl;
+
+    std::cout << "|" << std::setw(num_width) << "N"
+              << "|" << std::setfill('_') << std::setw(d_name_len - 1)
+              << "Discipline"
+              << "|" << std::setfill('_') << std::setw(num_width) << "Mark"
+              << "|" << std::setfill('_') << std::setw(s_num_width) << "Amount"
+              << std::setw(TERM_WIDTH - s_num_width - 2 * num_width -
+                           d_name_len - 3)
+              << std::setfill('_') << "|" << std::endl;
+
+    for(unsigned int i = 0; i < mx.d_names.size(); ++i) {
+        std::cout << "|" << std::setw(num_width) << i << "|"
+                  << std::setfill('_') << std::setw(d_name_len - 1)
+                  << mx.d_names[i] << "|" << std::setfill('_')
+                  << std::setw(num_width) << mx.marks_sum[i] / mx.ds_nums[i]
+                  << "|" << std::setfill('_') << std::setw(s_num_width)
+                  << mx.ds_nums[i]
+                  << std::setw(TERM_WIDTH - s_num_width - 2 * num_width -
+                               d_name_len - 3)
+                  << std::setfill('_') << "|" << std::endl;
+    }
+    std::cout << std::setw(TERM_WIDTH) << std::setfill('-') << "-" << std::endl;
 }
 
 int
 main()
 {
+    d_matrix matrix;
     std::vector<student> group;
     file_header header;
     std::string action;
@@ -310,16 +448,18 @@ main()
             save(group, header);
         } else if(action == "load") {
             load(group, header);
+            analyze(group, matrix);
+            sort(group.begin(), group.end(), abcomp);
         } else if(action == "edit") {
             edit(group, header);
+            analyze(group, matrix);
         } else if(action == "print") {
             print(group, header);
-        } // else if(action == "create") {
-          //   create(group, header);}
-        else if(action == "clear") {
+        } else if(action == "clear") {
             clear(group, header);
+            analyze(group, matrix);
         } else if(action == "settings") {
-            settings();
+            settings(); // TBD
         } else if((action == "help") || (action == "F")) {
             std::cout << HELP << std::endl;
         } else if(action == "moo") {
@@ -331,6 +471,7 @@ main()
             std::cin.clear();
             std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
         }
+        print_status(matrix);
         std::cout << "Enter a command: ";
         std::cin >> action;
     }
