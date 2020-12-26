@@ -28,7 +28,22 @@ std::string EDIT_HELP = "add - to add student,\n"
                         "del - to delete one,\n"
                         "cc - to change group code.";
 
-std::string SPLASH = "Something >>>SpLaSHy<<<";
+std::string SPLASH =
+  "                                                /|            \n"
+  "   ######    #####                             //|@           \n"
+  "  #@@@@@@#  #@@@@@#                           ///|@@          \n"
+  " #@@#####  #@@####  ######   ######          ////|@@@         \n"
+  " #@#       #@#      #@@@@@#  #@@@@@#        //##/|@@@@        \n"
+  " #@@####   #@#      #@###@@# #@###@@#      ///##/|@@@@@       \n"
+  "  #@@@@@#  #@#  ##  #@#  #@# #@#  #@#     ///////|@@@@@@      \n"
+  "   ####@@# #@# #@@# #@#  #@# #@###@@#     =======#=======     \n"
+  "       #@# #@#  #@# #@#  #@# #@@@@@#       @@@@@@|///////     \n"
+  "  #####@@# #@@###@# #@#  #@# #@###@@#       @@@@@|/##///      \n"
+  " #@@@@@@#   #@@@@@# #@#  #@# #@#  #@#        @@@@|/##//       \n"
+  "  ######     #####  #@###@@# #@####@#         @@@|////        \n"
+  "                    #@@@@@#  #@@@@@@#          @@|///         \n"
+  "                    ######   #######            @|//          \n"
+  "                                                 |/           \n";
 
 // TODO: parameters in settings and different DB names
 std::string db_name_b = "groupDB.bny";
@@ -51,13 +66,13 @@ struct student {
     discipline d_arr[d_num];
 };
 
-struct file_header {
+struct file_header { // used for saving, loading and etc
     char group_code[group_code_len] = "null";
     unsigned int s_num = 0;
     unsigned int d_num_h = d_num;
 };
 
-struct d_matrix {
+struct d_matrix { // special structure used in analyze func
     std::vector<std::string> d_names;
     std::vector<float> marks_sum;
     std::vector<unsigned int> ds_nums;
@@ -73,7 +88,7 @@ b_write(std::vector<student>& group, file_header& header)
     }
 
     ofile.write(reinterpret_cast<char*>(&header), sizeof(header));
-
+    // writing the header then the group
     for(student buff_student : group) {
         ofile.write(reinterpret_cast<char*>(&buff_student),
                     sizeof(buff_student));
@@ -83,8 +98,9 @@ b_write(std::vector<student>& group, file_header& header)
 
 void
 operator<<(std::ofstream& ofile, std::vector<student>& group)
-{
+{ // the half of this func is in load func
     for(student i : group) {
+        std::cout << "Writing " << i.s_name << std::endl;
         ofile << i.s_name << std::endl;
         for(unsigned int j = 0; j < d_num; ++j)
             ofile << i.d_arr[j].d_name << std::endl
@@ -103,10 +119,16 @@ save(std::vector<student>& group, file_header& header)
         b_write(group, header);
     } else if(action == "text") {
         std::ofstream ofile(db_name_t);
-        if(!ofile.is_open()) { // TODO
+        if(ofile.is_open()) { // somehow this works  -.(O_O).-
             ofile << header.group_code << std::endl;
-            ofile << header.s_num << " " << header.d_num_h;
-            ofile << group; // the best overload ever
+            ofile << header.s_num << " " << header.d_num_h << " ";
+            // the last " " is a workaround beacuse
+            // std::endl causes a mistake when reading
+
+            ofile << group; // the most useful overload ever
+            ofile.close();
+        } else {
+            std::cout << "Error opening the file." << std::endl;
         }
     } else {
         std::cout << action << ": command not found" << std::endl;
@@ -122,42 +144,72 @@ b_read(std::vector<student>& group, file_header& header)
     std::ifstream ifile(db_name_b, std::ios::binary);
 
     if(!ifile.is_open()) {
+        // a simple protection for missing files as in other funcs
         std::cout << "Failed opening file." << std::endl;
         return;
     }
 
     ifile.read(reinterpret_cast<char*>(&new_header), sizeof(new_header));
-
-    if(header.d_num_h != d_num) {
+    // reading the header
+    if(new_header.d_num_h != d_num) {
         std::cout << "Database is incompatible!" << std::endl;
-        return;
+        return; // checking a new header
     } else {
-        header = new_header;
-        std::cout << "There are " << header.s_num << " students with " << d_num
-                  << " disciplines from " << header.group_code << "."
-                  << std::endl;
+        header = new_header; // updating if it's OK
     }
-
+    std::cout << "There are " << header.s_num << " students with " << d_num
+              << " disciplines from " << header.group_code << "." << std::endl;
+    // now reading the group (the first s_num students)
     for(unsigned int i = 0; i < header.s_num; ++i) {
         ifile.read(reinterpret_cast<char*>(&buff_student),
                    sizeof(buff_student));
         group.push_back(buff_student);
     }
 
-    ifile.close();
+    ifile.close(); // closing the stream
 }
 
 void
-operator>>(std::ifstream& ifile,
-           std::vector<student>& group) // TODO
+operator>>(std::ifstream& ifile, std::vector<student>& group)
 {
+    // Oh, my function size... *FACEPALM*
+    // Also if we try to read a faulty DB
+    // we'll fail. Cool.
     student buffer;
-    while(!ifile.eof()) {
-        std::getline(ifile, buffer.s_name);
-        for(unsigned int j = 0; j < d_num; ++i) {
-            std::getline(ifile, buffer.d_arr[j].d_name);
-            std::getline(ifile, buffer.d_arr[j].mark);
+    std::string buffer_s_name;
+    std::string d_name;
+    std::string mark; // several buffers for reading strings
+
+    std::getline(ifile, buffer_s_name);
+    while(!ifile.eof() || buffer_s_name != "") {
+
+        // debugging info
+        std::cout << "Loading buffer_s_name " << buffer_s_name << std::endl;
+
+        for(unsigned int i = 0; i < s_name_len; ++i)
+            buffer.s_name[i] = buffer_s_name[i];
+        buffer_s_name.clear();
+        for(unsigned int j = 0; j < d_num; ++j) {
+            std::getline(ifile, d_name);
+
+            // debugging info
+            std::cout << "Loading d_name " << d_name << std::endl;
+
+            for(unsigned int i = 0; i < d_name_len; ++i)
+                buffer.d_arr[j].d_name[i] = d_name[i];
+            std::getline(ifile, mark);
+
+            // debugging info
+            std::cout << "Loading mark " << mark << std::endl;
+
+            buffer.d_arr[j].mark = std::stoi(mark);
+            d_name.clear();
+            mark.clear();
         }
+        group.push_back(buffer);
+
+        std::getline(ifile, buffer_s_name);
+        // workaround for .eof not working properly (#kludge)
     }
 }
 
@@ -171,16 +223,40 @@ load(std::vector<student>& group, file_header& header)
     std::cin >> action;
     if(action == "bin") {
         b_read(group, header);
-    } else if(action == "text") {
+    } else if(action == "text") { // a lot of srange stuff
+        // just because the arch. of DB was not meant to have a text FIO
         std::ifstream ifile(db_name_t);
-        if(!ifile.is_open()) {
-            std::getline(ifile, header.group_code);
-            ifile >> header.s_num >> header.d_num_h;
+        if(ifile.is_open()) {
+            std::string header_s_num;
+            std::string header_d_num;
+            std::string header_group_code;
+            std::getline(ifile, header_group_code);
+
+            // debugging info
+            std::cout << "Loading " << header_group_code << std::endl;
+
+            ifile >> header_s_num >> header_d_num;
+
+            // debugging info
+            std::cout << "Loading " << header_s_num << std::endl;
+            std::cout << "Loading " << header_d_num << std::endl;
+
             if(header.d_num_h == d_num) {
-                ifile >> group; // the best overload ever
+                header.s_num = std::stoi(header_s_num);
+                header.d_num_h = std::stoi(header_d_num);
+                for(unsigned int i = 0; i < group_code_len; ++i)
+                    header.group_code[i] = header_group_code[i];
+
+                ifile >> group; // LOL
+                ifile.close();
+                std::cout << "There are " << header.s_num << " students with "
+                          << d_num << " disciplines from " << header.group_code
+                          << "." << std::endl;
             } else {
                 std::cout << "Database is incompatible!" << std::endl;
             }
+        } else {
+            std::cout << "Error opening the file." << std::endl;
         }
     } else {
         std::cout << action << ": command not found" << std::endl;
@@ -188,7 +264,7 @@ load(std::vector<student>& group, file_header& header)
 }
 
 void
-add(std::vector<student>& group, file_header& header)
+add(std::vector<student>& group, file_header& header) // adding a new student
 {
     student new_student;
 
@@ -204,8 +280,8 @@ add(std::vector<student>& group, file_header& header)
     }
 
     std::cout << "Adding new student to the group...";
-    if(std::cin.fail()) {
-        std::cout << " [ Fail ] " << std::endl;
+    if(std::cin.fail()) { // if we've inputed data of non-correct type
+        std::cout << " [ Fail ] " << std::endl; // we'd not get an infinite loop
         std::cin.clear();
     } else {
         group.push_back(new_student);
@@ -215,7 +291,7 @@ add(std::vector<student>& group, file_header& header)
 }
 
 void
-del(std::vector<student>& group, file_header& header)
+del(std::vector<student>& group, file_header& header) // deleting a student
 {
     long int number; // In theory simple int cant cover all possible
                      // group sizes (but I've never seen such groups)
@@ -232,7 +308,7 @@ del(std::vector<student>& group, file_header& header)
 }
 
 void
-edit_group_code(file_header& header)
+edit_group_code(file_header& header) // editing group code
 {
     std::string action;
     while(action != "exit") {
@@ -244,7 +320,7 @@ edit_group_code(file_header& header)
         std::cout << "action word len " << action.length() << ", it#0"
                   << action.length() - 1 << ", it#1"
                   << group_code_len - action.length() + 1
-                  << std::endl; // debug info
+                  << std::endl; // debuging info
 
         if(action[0] == '!' && action.length() <= group_code_len) {
             for(unsigned int i = 0; i < action.length() - 1; ++i) {
@@ -271,9 +347,9 @@ edit(std::vector<student>& group, file_header& header)
 
         if(action == "add") {
             add(group, header);
-        } else if(action != "exit") {
-            std::cout << EDIT_HELP << std::endl;
-        } else if(action == "del" || action == "delete") {
+        }
+
+        else if(action == "del" || action == "delete") {
             if(group.size() > 0) {
                 del(group, header);
             } else
@@ -282,18 +358,15 @@ edit(std::vector<student>& group, file_header& header)
             edit_group_code(header);
         } else if(action != "exit") {
             std::cout << action << ": command not found" << std::endl;
-        }
-        if(std::cin.fail()) {
-            std::cin.clear();
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            std::cout << EDIT_HELP << std::endl;
         }
         std::cout << "Group size is " << group.size() << std::endl;
     }
 }
 
 void
-operator<<(std::ostream& out, student& buffer_student)
-{
+operator<<(std::ostream& out, student& buffer_student) // ugly, but it works
+{                                                      // printing 1 student
     std::cout << buffer_student.s_name << std::endl;
 
     std::cout << "|" << std::setw(num_width) << "N"
@@ -313,21 +386,21 @@ operator<<(std::ostream& out, student& buffer_student)
 }
 
 void
-print_all(std::vector<student>& group)
+print_all(std::vector<student>& group) // printing all students
 {
     for(student& buffer_student : group) {
         std::cout << buffer_student;
     }
 }
 
-void // TODO
-print(std::vector<student>& group, file_header& header)
+void
+print(std::vector<student>& group, file_header& header) // printing func
 {
     unsigned int index = 0;
     std::string action;
 
     if(group.size() * d_num <= TERM_HEIGHT) {
-        print_all(group);
+        print_all(group); // if the group is small, we'll print all students
     }
 
     std::cout << "There are " << header.s_num << " students with " << d_num
@@ -360,8 +433,9 @@ void
 clear(std::vector<student>& group, file_header& header)
 {
     std::string action;
-    if(protect_clear == 1) { // there we have a protection
+    if(protect_clear == 1) { // there we have a clear protection
         std::cout << "Are you sure? [Y/n]" << std::endl;
+        std::cin >> action;
         if(action == std::string("Y")) {
             group.clear();
             header.s_num = group.size();
@@ -418,7 +492,7 @@ struct { // custom function object for sort
 } abcomp;
 
 void
-print_status(d_matrix& mx)
+print_status(d_matrix& mx) // printing statistics
 {
     std::cout << std::setw(TERM_WIDTH) << std::setfill('_')
               << "Group status:" << std::endl;
@@ -443,6 +517,7 @@ print_status(d_matrix& mx)
                                d_name_len - 3)
                   << std::setfill('_') << "|" << std::endl;
     }
+    
     std::cout << std::setw(TERM_WIDTH) << std::setfill('-') << "-" << std::endl;
 }
 
