@@ -15,15 +15,14 @@ const unsigned int s_name_len = 80;
 const unsigned int group_code_len = 21;
 
 std::string HELP = "Help screen:"
-"splash - splash screen\n"
-"load - load group database\n"
-"save - save group DB\n"
-"edit - edit group DB\n"
-"print - print group contents\n"
-"clear - clear the contents of the group\n"
-"help - show this help\n"
-"\nPress [F] to pay respects and continue.\n"
-;
+                   "splash - splash screen\n"
+                   "load - load group database\n"
+                   "save - save group DB\n"
+                   "edit - edit group DB\n"
+                   "print - print group contents\n"
+                   "clear - clear the contents of the group\n"
+                   "help - show this help\n"
+                   "\nPress [F] to pay respects and continue.\n";
 
 std::string EDIT_HELP = "add - to add student,\n"
                         "del - to delete one,\n"
@@ -85,11 +84,12 @@ b_write(std::vector<student>& group, file_header& header)
 void
 operator<<(std::ofstream& ofile, std::vector<student>& group)
 {
-    if(!ofile.is_open()) {
-        std::cout << "Failed opening file." << std::endl;
-        return;
+    for(student i : group) {
+        ofile << i.s_name << std::endl;
+        for(unsigned int j = 0; j < d_num; ++j)
+            ofile << i.d_arr[j].d_name << std::endl
+                  << i.d_arr[j].mark << std::endl;
     }
-    ofile.close();
 }
 
 void
@@ -102,8 +102,12 @@ save(std::vector<student>& group, file_header& header)
     if(action == "bin") {
         b_write(group, header);
     } else if(action == "text") {
-        std::ofstream ofile(db_name_t); // TODO
-        ofile << group;                 // the best overload ever
+        std::ofstream ofile(db_name_t);
+        if(!ofile.is_open()) { // TODO
+            ofile << header.group_code << std::endl;
+            ofile << header.s_num << " " << header.d_num_h;
+            ofile << group; // the best overload ever
+        }
     } else {
         std::cout << action << ": command not found" << std::endl;
     }
@@ -147,11 +151,14 @@ void
 operator>>(std::ifstream& ifile,
            std::vector<student>& group) // TODO
 {
-    if(!ifile.is_open()) {
-        std::cout << "Failed opening file." << std::endl;
-        return;
+    student buffer;
+    while(!ifile.eof()) {
+        std::getline(ifile, buffer.s_name);
+        for(unsigned int j = 0; j < d_num; ++i) {
+            std::getline(ifile, buffer.d_arr[j].d_name);
+            std::getline(ifile, buffer.d_arr[j].mark);
+        }
     }
-    ifile.close();
 }
 
 void
@@ -165,8 +172,16 @@ load(std::vector<student>& group, file_header& header)
     if(action == "bin") {
         b_read(group, header);
     } else if(action == "text") {
-        std::ifstream ifile(db_name_t); // todo
-        ifile >> group;                 // the best overload ever
+        std::ifstream ifile(db_name_t);
+        if(!ifile.is_open()) {
+            std::getline(ifile, header.group_code);
+            ifile >> header.s_num >> header.d_num_h;
+            if(header.d_num_h == d_num) {
+                ifile >> group; // the best overload ever
+            } else {
+                std::cout << "Database is incompatible!" << std::endl;
+            }
+        }
     } else {
         std::cout << action << ": command not found" << std::endl;
     }
@@ -405,7 +420,8 @@ struct { // custom function object for sort
 void
 print_status(d_matrix& mx)
 {
-    std::cout << std::setw(TERM_WIDTH) << std::setfill('_') << "Group status:" << std::endl;
+    std::cout << std::setw(TERM_WIDTH) << std::setfill('_')
+              << "Group status:" << std::endl;
 
     std::cout << "|" << std::setw(num_width) << "N"
               << "|" << std::setfill('_') << std::setw(d_name_len - 1)
