@@ -1,15 +1,58 @@
 // Copyright 2020 Fe-Ti <btm.007@mail.ru>
 //
+/*
+ * ### What is this ###
+ * This is a very simple set of functions built
+ * upon the <filesystem> API. It doesn't pretend to be
+ * a command shell, but it tries to mimic such behaviour.
+ *
+ * A link to the tutorial of shell writing can be found below
+ * https://brennan.io/2015/01/16/write-a-shell-in-c/
+ *
+ * ### How does this code works ###
+ *
+ * 1)User enters a command:
+ *
+ *      mv green/tea .
+ *      ^
+ *      | "mv" == "mv", so we call mv(session_data&) function
+ *
+ * 2)Now in the mv function cin has buffered "green/tea .":
+ *      source path -> green/tea
+ *      destination path -> . (i.e. our current dir)
+ *
+ * 3)Now calling renaming function and, if we've got an FS error,
+ * printing the explanatory string.
+ *
+ * Note:
+ * I'm trying to handle the exceptions via try-catch contruction.
+ *
+ * 4)Then returning to main function.
+ *
+ */
+//
 
-#include <bitset>
-#include <cstdlib>
 #include <filesystem>
 #include <iostream>
 #include <string>
 
 namespace stdfs = std::filesystem;
 
-const std::string cnf = ": command not found";
+const std::string CNF = ": command not found";
+const std::string SCS = "Success";
+const std::string HELP = "Available commands:\n"
+                         "pwd   - print working directory\n"
+                         "ls    - list working directory\n"
+                         "cd    - change directory\n"
+                         "info  - print file size\n"
+                         "mkdir - make directory\n"
+                         "rm    - recursively remove directory\n"
+                         "cp    - recursively copy directory\n"
+                         "mv    - move|rename directory|file\n"
+                         "\n"
+                         "help  - print this help\n"
+                         "Usage sample:\n"
+                         "cp foo /home/bar\n";
 
 struct session_data {
     std::string ps1;
@@ -24,7 +67,7 @@ pwd(session_data& session)
 }
 
 std::string
-item_type(stdfs::directory_entry item)
+item_type(stdfs::directory_entry item) // internal func
 {
     if(item.is_directory())
         return "directory";
@@ -51,15 +94,17 @@ mkdir(session_data& session)
     stdfs::path dest;
     std::string action;
     std::cin >> action;
-    if(action[0] != '/') {
+    if(action[0] != '/') { // transforming the path into absolute one
         dest = session.curr_dir / action;
     } else {
         dest = action;
-    }
+    } // the same construction can be seen in other functions
+      // (yes, I know another way how to make an absolute paths)
     try {
 
         if(!stdfs::directory_entry(dest).exists()) {
             stdfs::create_directory(dest);
+            std::cout << SCS;
         } else {
             std::cout << "The directory already exists." << std::endl;
         }
@@ -69,7 +114,7 @@ mkdir(session_data& session)
 }
 
 void
-info(session_data& session)
+info(session_data& session) // here could be your info
 {
     std::string action;
     std::cin >> action;
@@ -115,29 +160,76 @@ cp(session_data& session)
 }
 
 void
-rm(session_data& session)
+rm(session_data& session) // recursively removes
+                          // dirs and subdirs
 {
     std::string action;
+    stdfs::path target;
     std::cin >> action;
+    if(action[0] != '/') {
+        target = session.curr_dir / action;
+    } else {
+        target = action;
+    }
+    try {
+        stdfs::remove_all(target);
+    } catch(stdfs::filesystem_error& error) {
+        std::cout << error.what() << std::endl;
+    }
 }
 
 void
 cd(session_data& session)
 {
     std::string action;
+    stdfs::path dest;
     std::cin >> action;
+    if(action[0] != '/') {
+        dest = session.curr_dir / action;
+    } else {
+        dest = action;
+    }
+    try {
+        stdfs::current_path(dest);
+        session.curr_dir = stdfs::current_path();
+    } catch(stdfs::filesystem_error& error) {
+        std::cout << error.what() << std::endl;
+        return;
+    }
+    session.ps1 = session.curr_dir.string() + std::string("$ ");
 }
 
 void
 mv(session_data& session)
 {
     std::string action;
+    stdfs::path source;
+    stdfs::path dest;
     std::cin >> action;
+    if(action[0] != '/') {
+        source = session.curr_dir / action;
+    } else {
+        source = action;
+    }
+    std::cin >> action;
+    if(action[0] != '/') {
+        dest = session.curr_dir / action;
+    } else {
+        dest = action;
+    }
+    try {
+        stdfs::rename(source, dest);
+        std::cout << SCS << " moving ";
+        std::cout << source << " -> " << dest;
+    } catch(stdfs::filesystem_error& error) {
+        std::cout << error.what() << std::endl;
+    }
 }
 
 void
 help(session_data& session)
 {
+    std::cout << HELP << std::endl;
 }
 
 int
@@ -177,7 +269,7 @@ main()
         } else if(action == "help") {
             help(session);
         } else if(action != "exit") {
-            std::cout << action << cnf << std::endl;
+            std::cout << action << CNF << std::endl;
             std::cout << "Enter 'help' to see avaliable commands." << std::endl;
         }
         std::cin.clear();
