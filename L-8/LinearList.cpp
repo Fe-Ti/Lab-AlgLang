@@ -1,8 +1,51 @@
 // Copyright 2020 Fe-Ti <btm.007@mail.ru>
+//
 // Linear Not Dualbound List
 //
 
+/*
+ * This  structure is simpler than cyclic list.
+ * We have an array of pointers, which are set to nullptr,
+ * and list size for fast access to the list size.
+ * 
+ * When appending we just allocating new node at the end of list.
+ * 
+ * When inserting the rest of the list with greater indexes and 
+ * node at the wanted index are moved forward, then a new
+ * node is inserted.
+ * 
+ * Popping works in reverse order and returns contents.
+ * 
+ * Printing, finding and other things are very trivial.
+ * 
+*/
+
+
+
+
 #include <iostream>
+#include <functional>
+
+/////////////////////
+//// DUMMY STUFF ////
+/////////////////////
+struct data {
+    char smth;
+};
+
+std::ostream&
+operator<<(std::ostream& out, data obj)
+{
+    out << obj.smth;
+    return out;
+}
+
+bool
+operator==(data& a, data& b)
+{
+    return a.smth == b.smth;
+}
+/////////////////////
 
 template<typename T> struct ListNode {
     T data;
@@ -108,11 +151,18 @@ print(LinearList<T, S>& list)
 }
 
 template<typename T, unsigned int S>
+unsigned long int
+size(LinearList<T, S>& list)
+{
+    return list.size; // VERY useful function )
+}
+
+template<typename T, unsigned int S>
 void
 destructor(LinearList<T, S>& list)
 {
     while(list.size != 0) {
-        std::cout << pop_back(list) << " ";
+        std::cout << pop_back(std::ref(list).get()) << " ";
     }
 }
 
@@ -136,5 +186,30 @@ main()
     std::cout << find(test, 0) << std::endl;
     destructor(test);
     print(test);
+
+    data dummy0;
+    dummy0.smth = 'a';
+    data dummy1;
+    dummy1.smth = 'b';
+    data dummy2;
+    dummy2.smth = 'c';
+
+    LinearList<data, 10> test1;
+    constructor(test1);
+    print(test1);
+    append(test1, dummy0);
+    print(test1);
+    append(test1, dummy1);
+    print(test1);
+    append(test1, dummy2);
+    print(test1);
+    append(test1, dummy1);
+    print(test1);
+    std::cout << find(test1, dummy2) << std::endl;
+    insert(test1, dummy2, static_cast<unsigned int>(0));
+    print(test1);
+    std::cout << find(test1, dummy2) << std::endl;
+    destructor(test1);
+    print(test1);
     return 0;
 }

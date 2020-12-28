@@ -45,7 +45,10 @@ std::string SPLASH =
   "                    ######   #######            @|//          \n"
   "                                                 |/           \n";
 
-// TODO: parameters in settings and different DB names
+////////////////////////////////////////////////////////////////////////////////
+// TODO: parameters in settings (present here as global non constant variables)
+//       <If I had free time, I would implment this feature>
+////////////////////////////////////////////////////////////////////////////////
 std::string db_name_b = "groupDB.bny";
 std::string db_name_t = "groupDB.txt";
 unsigned short int protect_clear = 1; // 1 - enable, whatever else - disable
@@ -55,6 +58,7 @@ unsigned short int s_num_width =
   10; // students amount colomn width (when printing)
 unsigned short int TERM_HEIGHT = 24; // Terminal screen height
 unsigned short int TERM_WIDTH = 80;  // Terminal screen height
+////////////////////////////////////////////////////////////////////////////////
 
 struct discipline {
     char d_name[d_name_len];
@@ -517,7 +521,7 @@ print_status(d_matrix& mx) // printing statistics
                                d_name_len - 3)
                   << std::setfill('_') << "|" << std::endl;
     }
-    
+
     std::cout << std::setw(TERM_WIDTH) << std::setfill('-') << "-" << std::endl;
 }
 
