@@ -82,57 +82,83 @@ template<typename K, typename T>
 bool
 wants_lsmt(Tree_node<K, T>*& branch)
 {
+    return false;
 }
 
 template<typename K, typename T>
 bool
 wants_rsmt(Tree_node<K, T>*& branch)
 {
+    return false;
 }
 
 template<typename K, typename T>
 bool
 wants_lbt(Tree_node<K, T>*& branch)
 {
+    return false;
 }
 
 template<typename K, typename T>
 bool
 wants_rbt(Tree_node<K, T>*& branch)
 {
+    return false;
 }
 
 template<typename K, typename T>
 void // prototyping
 left_small_turn(Tree_node<K, T>*& branch)
 {
-    Tree_node<K, T>*;
-    if(branch->parent->lchild == branch) // if branch is lchild of parent then
-        branch->parent->lchild = branch->rchild; // change l parent's pointer
-    else                                         // else
-        branch->parent->rchild = branch->rchild; // change right one
+    // branch->lchild and rchild's rchild are kept in place
 
-    // branch->lchild is kept in place
+    if(branch->parent != nullptr) {
+        // grand parent's stuff --ROFL--
+        //// if branch is lchild of parent then
+        //// change l parent's pointer
+        //// else
+        //// change the right one
+
+        if(branch->parent->lchild == branch)
+            branch->parent->lchild = branch->rchild;
+        else
+            branch->parent->rchild = branch->rchild;
+    }
     branch->rchild->parent = branch->parent;
+
     branch->parent = branch->rchild;
     branch->rchild->lchild->parent = branch;
+    branch->rchild = branch->rchild->lchild;
+    branch->parent->lchild = branch;
 }
 
 template<typename K, typename T>
 void
-right_small_turn()
+right_small_turn(Tree_node<K, T>*& branch)
+{
+    if(branch->parent != nullptr) {
+        if(branch->parent->lchild == branch)
+            branch->parent->lchild = branch->lchild;
+        else
+            branch->parent->rchild = branch->rchild;
+    }
+    branch->lchild->parent = branch->parent;
+
+    branch->parent = branch->lchild;
+    branch->lchild->rchild->parent = branch;
+    branch->lchild = branch->lchild->rchild;
+    branch->parent->rchild = branch;
+}
+
+template<typename K, typename T>
+void
+left_big_turn(Tree_node<K, T>*& branch)
 {
 }
 
 template<typename K, typename T>
 void
-left_big_turn()
-{
-}
-
-template<typename K, typename T>
-void
-right_big_turn()
+right_big_turn(Tree_node<K, T>*& branch)
 {
 }
 
@@ -172,16 +198,16 @@ grow(Tree_node<K, T>*& branch,
         }
         if(check_enable) {
             if(wants_lsmt(branch)) {
-                left_small_turn();
+                left_small_turn(branch);
             }
             if(wants_rsmt(branch)) {
-                right_small_turn();
+                right_small_turn(branch);
             }
             if(wants_lbt(branch)) {
-                left_big_turn();
+                left_big_turn(branch);
             }
             if(wants_rbt(branch)) {
-                right_big_turn();
+                right_big_turn(branch);
             }
         }
     }
@@ -253,15 +279,17 @@ main()
     Tree<int, std::string> tester;
     constructor(tester);
     add(tester, 5, std::string("5"));
-    add(tester, 4, std::string("4"));
-    add(tester, 2, std::string("2"));
     add(tester, 3, std::string("3"));
+    add(tester, 2, std::string("2"));
+    add(tester, 4, std::string("4"));
     add(tester, 1, std::string("1"));
     add(tester, 6, std::string("6"));
     add(tester, 8, std::string("8"));
     add(tester, 7, std::string("7"));
     add(tester, 234, std::string("234"));
     add(tester, 2347, std::string("2347"));
+    print(tester);
+    right_small_turn(tester.rootptr->lchild);
     print(tester);
     return 0;
 }
