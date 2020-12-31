@@ -34,6 +34,7 @@
 
 #include <iostream>
 #include <string>
+//#include <thread>
 #include <utility>
 
 template<typename K, typename T> struct Tree_node {
@@ -68,6 +69,22 @@ init_node(K key,
         key,      parent,         lchild,         rchild,
         t_height, lst_max_height, rst_max_height, data
     };
+}
+
+template<typename K, typename T>
+std::ostream&
+pp(std::ostream& out, Tree_node<K, T>*& node)
+{
+    out << "Node   : " << node->key << std::endl;
+    out << " data  : " << node->data << std::endl;
+    out << " parent: " << node->parent << std::endl;
+    out << " lchild: " << node->lchild << std::endl;
+    out << " rchild: " << node->rchild << std::endl;
+    out << " rstmh : " << node->rst_max_height << std::endl;
+    out << " lstmh : " << node->lst_max_height << std::endl;
+    out << " th    : " << node->t_height << std::endl;
+    out << " own pt: " << node << std::endl;
+    return out;
 }
 
 template<typename K, typename T>
@@ -107,47 +124,124 @@ wants_rbt(Tree_node<K, T>*& branch)
 }
 
 template<typename K, typename T>
-void // prototyping
-left_small_turn(Tree_node<K, T>*& branch)
+void
+left_small_turn(Tree_node<K, T>& branch)
 {
-    // branch->lchild and rchild's rchild are kept in place
+    if(branch.rchild != nullptr
+       && branch.rchild->lchild != nullptr) {
+        // branch->lchild and rchild's rchild are kept in place
+        std::cout << "Begin optimization: lsmt" << std::endl;
+        if(branch.parent != nullptr) {
+            // grand parent's stuff --ROFL--
+            //// if branch is lchild of parent then
+            //// change l parent's pointer
+            //// else
+            //// change the right one
 
-    if(branch->parent != nullptr) {
-        // grand parent's stuff --ROFL--
-        //// if branch is lchild of parent then
-        //// change l parent's pointer
-        //// else
-        //// change the right one
+            if(branch.parent->lchild == branch) {
+                // std::cout << "Thread #" << std::this_thread::get_id();
+                std::cout << " setting parent's pointer" << std::endl;
+                branch.parent->lchild = branch.rchild;
+            } else {
+                // std::cout << "Thread #" << std::this_thread::get_id();
+                std::cout << " setting parent's pointer" << std::endl;
+                branch.parent->rchild = branch.rchild;
+            }
+        }
+        // std::cout << "Thread #" << std::this_thread::get_id();
+        std::cout << " setting BRP pointer" << std::endl;
+        branch.rchild->parent = branch.parent;
+        // std::cout << "Thread #" << std::this_thread::get_id();
+        std::cout << " set BRP pointer" << std::endl;
 
-        if(branch->parent->lchild == branch)
-            branch->parent->lchild = branch->rchild;
-        else
-            branch->parent->rchild = branch->rchild;
+        // std::cout << "Thread #" << std::this_thread::get_id();
+        std::cout << " setting BP pointer" << std::endl;
+        branch.parent = branch.rchild;
+        // std::cout << "Thread #" << std::this_thread::get_id();
+        std::cout << " set BP pointer" << std::endl;
+
+        // std::cout << "Thread #" << std::this_thread::get_id();
+        std::cout << " setting BRLP pointer" << std::endl;
+        branch.rchild->lchild->parent = branch;
+        // std::cout << "Thread #" << std::this_thread::get_id();
+        std::cout << " set BRLP pointer" << std::endl;
+
+        // std::cout << "Thread #" << std::this_thread::get_id();
+        std::cout << " setting BR pointer" << std::endl;
+        branch.rchild = branch.rchild->lchild;
+        // std::cout << "Thread #" << std::this_thread::get_id();
+        std::cout << " set BR pointer" << std::endl;
+
+        // std::cout << "Thread #" << std::this_thread::get_id();
+        std::cout << " setting BPL pointer" << std::endl;
+        branch.parent->lchild = branch;
+        // std::cout << "Thread #" << std::this_thread::get_id();
+        std::cout << " set BPL pointer" << std::endl;
+        std::cout << "End optimization: lsmt" << std::endl;
     }
-    branch->rchild->parent = branch->parent;
-
-    branch->parent = branch->rchild;
-    branch->rchild->lchild->parent = branch;
-    branch->rchild = branch->rchild->lchild;
-    branch->parent->lchild = branch;
 }
 
 template<typename K, typename T>
 void
-right_small_turn(Tree_node<K, T>*& branch)
+right_small_turn(Tree_node<K, T>& branch)
 {
-    if(branch->parent != nullptr) {
-        if(branch->parent->lchild == branch)
-            branch->parent->lchild = branch->lchild;
-        else
-            branch->parent->rchild = branch->rchild;
-    }
-    branch->lchild->parent = branch->parent;
+    if(branch.lchild != nullptr && branch.lchild->rchild != nullptr) {
+        std::cout << "Begin optimization: rsmt" << std::endl;
+        //std::cout << "Current status B" << std::endl;
+        //pp(std::cout, branch);
 
-    branch->parent = branch->lchild;
-    branch->lchild->rchild->parent = branch;
-    branch->lchild = branch->lchild->rchild;
-    branch->parent->rchild = branch;
+        std::cout << "Current status BL" << std::endl;
+        pp(std::cout, branch.lchild);
+
+        std::cout << "Current status BLR" << std::endl;
+        pp(std::cout, branch.lchild->rchild);
+
+        if(branch.parent != nullptr) {
+            std::cout << "Current status BP" << std::endl;
+            pp(std::cout, branch.parent);
+            if(branch.parent->lchild == &branch) {
+                // std::cout << "Thread #" << std::this_thread::get_id();
+                std::cout << " setting parent's pointer" << std::endl;
+                branch.parent->lchild = branch.lchild;
+            } else {
+                // std::cout << "Thread #" << std::this_thread::get_id();
+                std::cout << " setting parent's pointer" << std::endl;
+                branch.parent->rchild = branch.rchild;
+            }
+        }
+
+        // std::cout << "Thread #" << std::this_thread::get_id();
+        std::cout << " setting BLP pointer" << std::endl;
+        branch.lchild->parent = branch.parent;
+        // std::cout << "Thread #" << std::this_thread::get_id();
+        std::cout << " set BLP pointer" << std::endl;
+
+        // std::cout << "Thread #" << std::this_thread::get_id();
+        std::cout << " setting BP pointer" << std::endl;
+        branch.parent = branch.lchild;
+        // std::cout << "Thread #" << std::this_thread::get_id();
+        std::cout << " set BP pointer" << std::endl;
+
+        // std::cout << "Thread #" << std::this_thread::get_id();
+        std::cout << " setting BLRP pointer" << std::endl;
+        branch.lchild->rchild->parent = &branch;
+        // std::cout << "Thread #" << std::this_thread::get_id();
+        std::cout << " set BLRP pointer" << std::endl;
+
+        // std::cout << "Thread #" << std::this_thread::get_id();
+        std::cout << " setting BL pointer" << std::endl;
+        branch.lchild = branch.lchild->rchild;
+        // std::cout << "Thread #" << std::this_thread::get_id();
+        std::cout << " set BL pointer" << std::endl;
+
+        // std::cout << "Thread #" << std::this_thread::get_id();
+        std::cout << " setting BPR pointer" << std::endl;
+        branch.parent->rchild = &branch;
+        // std::cout << "Thread #" << std::this_thread::get_id();
+        std::cout << " set BPR pointer" << std::endl;
+
+        std::cout << "Begin optimization: rsmt" << std::endl;
+    }
 }
 
 template<typename K, typename T>
@@ -198,10 +292,10 @@ grow(Tree_node<K, T>*& branch,
         }
         if(check_enable) {
             if(wants_lsmt(branch)) {
-                left_small_turn(branch);
+                left_small_turn(*branch);
             }
             if(wants_rsmt(branch)) {
-                right_small_turn(branch);
+                right_small_turn(*branch);
             }
             if(wants_lbt(branch)) {
                 left_big_turn(branch);
@@ -276,9 +370,16 @@ destructor()
 int
 main()
 {
-    Tree<int, std::string> tester;
+    std::srand(0);
+    int a;
+    Tree<int, int> tester;
     constructor(tester);
-    add(tester, 5, std::string("5"));
+    for(int i = 0; i < 30; ++i) {
+        a = std::rand() % 1000;
+        add(tester, a, a);
+    }
+
+    /*add(tester, 5, std::string("5"));
     add(tester, 3, std::string("3"));
     add(tester, 2, std::string("2"));
     add(tester, 4, std::string("4"));
@@ -287,9 +388,10 @@ main()
     add(tester, 8, std::string("8"));
     add(tester, 7, std::string("7"));
     add(tester, 234, std::string("234"));
-    add(tester, 2347, std::string("2347"));
+    add(tester, 2347, std::string("2347"));*/
     print(tester);
-    right_small_turn(tester.rootptr->lchild);
+    right_small_turn(*tester.rootptr->lchild);
+    left_small_turn(*tester.rootptr->lchild);
     print(tester);
     return 0;
 }
