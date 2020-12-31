@@ -73,7 +73,7 @@ init_node(K key,
 
 template<typename K, typename T>
 std::ostream&
-pp(std::ostream& out, Tree_node<K, T>*& node)
+pp(std::ostream& out, Tree_node<K, T>*& node) // superinternal func
 {
     out << "Node   : " << node->key << std::endl;
     out << " data  : " << node->data << std::endl;
@@ -86,6 +86,13 @@ pp(std::ostream& out, Tree_node<K, T>*& node)
     out << " own pt: " << node << std::endl;
     return out;
 }
+/*template<typename K, typename T>
+Tree_node<K,T>*
+get_pointer() // superinternal function
+{
+    
+    return node;
+}*/
 
 template<typename K, typename T>
 void
@@ -127,8 +134,7 @@ template<typename K, typename T>
 void
 left_small_turn(Tree_node<K, T>& branch)
 {
-    if(branch.rchild != nullptr
-       && branch.rchild->lchild != nullptr) {
+    if(branch.rchild != nullptr && branch.rchild->lchild != nullptr) {
         // branch->lchild and rchild's rchild are kept in place
         std::cout << "Begin optimization: lsmt" << std::endl;
         if(branch.parent != nullptr) {
@@ -138,7 +144,7 @@ left_small_turn(Tree_node<K, T>& branch)
             //// else
             //// change the right one
 
-            if(branch.parent->lchild == branch) {
+            if(branch.parent->lchild == &branch) {
                 // std::cout << "Thread #" << std::this_thread::get_id();
                 std::cout << " setting parent's pointer" << std::endl;
                 branch.parent->lchild = branch.rchild;
@@ -162,7 +168,7 @@ left_small_turn(Tree_node<K, T>& branch)
 
         // std::cout << "Thread #" << std::this_thread::get_id();
         std::cout << " setting BRLP pointer" << std::endl;
-        branch.rchild->lchild->parent = branch;
+        branch.rchild->lchild->parent = &branch;
         // std::cout << "Thread #" << std::this_thread::get_id();
         std::cout << " set BRLP pointer" << std::endl;
 
@@ -174,7 +180,7 @@ left_small_turn(Tree_node<K, T>& branch)
 
         // std::cout << "Thread #" << std::this_thread::get_id();
         std::cout << " setting BPL pointer" << std::endl;
-        branch.parent->lchild = branch;
+        branch.parent->lchild = &branch;
         // std::cout << "Thread #" << std::this_thread::get_id();
         std::cout << " set BPL pointer" << std::endl;
         std::cout << "End optimization: lsmt" << std::endl;
@@ -187,8 +193,8 @@ right_small_turn(Tree_node<K, T>& branch)
 {
     if(branch.lchild != nullptr && branch.lchild->rchild != nullptr) {
         std::cout << "Begin optimization: rsmt" << std::endl;
-        //std::cout << "Current status B" << std::endl;
-        //pp(std::cout, branch);
+        // std::cout << "Current status B" << std::endl;
+        // pp(std::cout, branch);
 
         std::cout << "Current status BL" << std::endl;
         pp(std::cout, branch.lchild);
@@ -329,8 +335,18 @@ add(Tree<K, T>& birch, std::pair<K, T> tuple) // an overload for pairs
 
 template<typename K, typename T>
 void
-remove()
+cut(Tree_node<K, T>*& branch,
+    T& key,
+    bool check_enable = true)
 {
+    
+}
+
+template<typename K, typename T>
+void
+remove(Tree<K, T>& birch, K key, bool check_enable = true)
+{
+    cut(birch.rootptr, key, check_enable);
 }
 
 template<typename K, typename T>
@@ -378,7 +394,6 @@ main()
         a = std::rand() % 1000;
         add(tester, a, a);
     }
-
     /*add(tester, 5, std::string("5"));
     add(tester, 3, std::string("3"));
     add(tester, 2, std::string("2"));
