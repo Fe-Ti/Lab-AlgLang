@@ -74,6 +74,7 @@ init_node(K key,
 template<typename K, typename T>
 std::ostream&
 pp(std::ostream& out, Tree_node<K, T>*& node) // superinternal func
+                                              // prints info about a given node
 {
     out << "Node   : " << node->key << std::endl;
     out << " data  : " << node->data << std::endl;
@@ -86,13 +87,13 @@ pp(std::ostream& out, Tree_node<K, T>*& node) // superinternal func
     out << " own pt: " << node << std::endl;
     return out;
 }
-/*template<typename K, typename T>
-Tree_node<K,T>*
-get_pointer() // superinternal function
+template<typename K, typename T>
+Tree_node<K, T>*
+get_pointer() // superinternal function //TODO!
 {
-    
+    Tree_node<K, T>* node;
     return node;
-}*/
+}
 
 template<typename K, typename T>
 void
@@ -154,98 +155,33 @@ left_small_turn(Tree_node<K, T>& branch)
                 branch.parent->rchild = branch.rchild;
             }
         }
-        // std::cout << "Thread #" << std::this_thread::get_id();
-        std::cout << " setting BRP pointer" << std::endl;
         branch.rchild->parent = branch.parent;
-        // std::cout << "Thread #" << std::this_thread::get_id();
-        std::cout << " set BRP pointer" << std::endl;
-
-        // std::cout << "Thread #" << std::this_thread::get_id();
-        std::cout << " setting BP pointer" << std::endl;
         branch.parent = branch.rchild;
-        // std::cout << "Thread #" << std::this_thread::get_id();
-        std::cout << " set BP pointer" << std::endl;
-
-        // std::cout << "Thread #" << std::this_thread::get_id();
-        std::cout << " setting BRLP pointer" << std::endl;
         branch.rchild->lchild->parent = &branch;
-        // std::cout << "Thread #" << std::this_thread::get_id();
-        std::cout << " set BRLP pointer" << std::endl;
-
-        // std::cout << "Thread #" << std::this_thread::get_id();
-        std::cout << " setting BR pointer" << std::endl;
         branch.rchild = branch.rchild->lchild;
-        // std::cout << "Thread #" << std::this_thread::get_id();
-        std::cout << " set BR pointer" << std::endl;
-
-        // std::cout << "Thread #" << std::this_thread::get_id();
-        std::cout << " setting BPL pointer" << std::endl;
         branch.parent->lchild = &branch;
-        // std::cout << "Thread #" << std::this_thread::get_id();
-        std::cout << " set BPL pointer" << std::endl;
         std::cout << "End optimization: lsmt" << std::endl;
     }
 }
 
 template<typename K, typename T>
 void
-right_small_turn(Tree_node<K, T>& branch)
+right_small_turn(Tree_node<K, T>& branch) // the same as lsmt
 {
     if(branch.lchild != nullptr && branch.lchild->rchild != nullptr) {
         std::cout << "Begin optimization: rsmt" << std::endl;
-        // std::cout << "Current status B" << std::endl;
-        // pp(std::cout, branch);
-
-        std::cout << "Current status BL" << std::endl;
-        pp(std::cout, branch.lchild);
-
-        std::cout << "Current status BLR" << std::endl;
-        pp(std::cout, branch.lchild->rchild);
-
         if(branch.parent != nullptr) {
-            std::cout << "Current status BP" << std::endl;
-            pp(std::cout, branch.parent);
             if(branch.parent->lchild == &branch) {
-                // std::cout << "Thread #" << std::this_thread::get_id();
-                std::cout << " setting parent's pointer" << std::endl;
                 branch.parent->lchild = branch.lchild;
             } else {
-                // std::cout << "Thread #" << std::this_thread::get_id();
-                std::cout << " setting parent's pointer" << std::endl;
                 branch.parent->rchild = branch.rchild;
             }
         }
-
-        // std::cout << "Thread #" << std::this_thread::get_id();
-        std::cout << " setting BLP pointer" << std::endl;
         branch.lchild->parent = branch.parent;
-        // std::cout << "Thread #" << std::this_thread::get_id();
-        std::cout << " set BLP pointer" << std::endl;
-
-        // std::cout << "Thread #" << std::this_thread::get_id();
-        std::cout << " setting BP pointer" << std::endl;
         branch.parent = branch.lchild;
-        // std::cout << "Thread #" << std::this_thread::get_id();
-        std::cout << " set BP pointer" << std::endl;
-
-        // std::cout << "Thread #" << std::this_thread::get_id();
-        std::cout << " setting BLRP pointer" << std::endl;
         branch.lchild->rchild->parent = &branch;
-        // std::cout << "Thread #" << std::this_thread::get_id();
-        std::cout << " set BLRP pointer" << std::endl;
-
-        // std::cout << "Thread #" << std::this_thread::get_id();
-        std::cout << " setting BL pointer" << std::endl;
         branch.lchild = branch.lchild->rchild;
-        // std::cout << "Thread #" << std::this_thread::get_id();
-        std::cout << " set BL pointer" << std::endl;
-
-        // std::cout << "Thread #" << std::this_thread::get_id();
-        std::cout << " setting BPR pointer" << std::endl;
         branch.parent->rchild = &branch;
-        // std::cout << "Thread #" << std::this_thread::get_id();
-        std::cout << " set BPR pointer" << std::endl;
-
         std::cout << "Begin optimization: rsmt" << std::endl;
     }
 }
@@ -335,11 +271,8 @@ add(Tree<K, T>& birch, std::pair<K, T> tuple) // an overload for pairs
 
 template<typename K, typename T>
 void
-cut(Tree_node<K, T>*& branch,
-    T& key,
-    bool check_enable = true)
+cut(Tree_node<K, T>*& branch, T& key, bool check_enable = true)
 {
-    
 }
 
 template<typename K, typename T>
