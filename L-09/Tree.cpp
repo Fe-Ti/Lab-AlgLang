@@ -470,23 +470,19 @@ template<typename K, typename T>
 void
 recuprint(Tree_node<K, T>*& branch, std::string& recuheader)
 {
-    if(recuheader.size() < 35) {
-        std::cout << recuheader << branch->data << std::endl;
-        recuheader.push_back('|');
-        if(branch->lchild != nullptr) {
-            std::cout << "going left" << std::endl;
+    std::cout << recuheader << branch->data << std::endl;
+    recuheader.push_back('|');
+    if(branch->lchild != nullptr) {
+        std::cout << "going left" << std::endl;
 
-            recuprint(branch->lchild, recuheader);
-        }
-        if(branch->rchild != nullptr) {
-            std::cout << "going right" << std::endl;
-
-            recuprint(branch->rchild, recuheader);
-        }
-        recuheader.pop_back();
-    } else {
-        std::cout << "fck u" << std::endl;
+        recuprint(branch->lchild, recuheader);
     }
+    if(branch->rchild != nullptr) {
+        std::cout << "going right" << std::endl;
+
+        recuprint(branch->rchild, recuheader);
+    }
+    recuheader.pop_back();
 }
 
 template<typename K, typename T>
@@ -500,6 +496,12 @@ print(Tree<K, T>& birch)
     } else {
         std::cout << "NULL" << std::endl;
     }
+}
+
+template<typename K, typename T>
+void
+cut_down()
+{
 }
 
 template<typename K, typename T>
