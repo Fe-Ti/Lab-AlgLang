@@ -196,27 +196,27 @@ right_small_turn(Tree_node<K, T>& branch) // the same as lsmt
 
 template<typename K, typename T>
 void
-left_big_turn(Tree_node<K, T>*& branch)
+left_big_turn(Tree_node<K, T>& branch)
 {
 }
 
 template<typename K, typename T>
 void
-right_big_turn(Tree_node<K, T>*& branch)
+right_big_turn(Tree_node<K, T>& branch)
 {
 }
 
 // internal functions
 template<typename K, typename T>
 void
-update_lstmh(Tree_node<K, T>*& branch, Tree_node<K, T>*& new_node)
+update_lstmh(Tree_node<K, T>* branch, Tree_node<K, T>*& new_node)
 {
     if(new_node->t_height > branch->lst_max_height)
         branch->lst_max_height = new_node->t_height;
 }
 template<typename K, typename T>
 void
-update_rstmh(Tree_node<K, T>*& branch, Tree_node<K, T>*& new_node)
+update_rstmh(Tree_node<K, T>* branch, Tree_node<K, T>*& new_node)
 {
     if(new_node->t_height > branch->rst_max_height)
         branch->rst_max_height = new_node->t_height;
@@ -224,7 +224,7 @@ update_rstmh(Tree_node<K, T>*& branch, Tree_node<K, T>*& new_node)
 
 template<typename K, typename T>
 void
-check_tree(Tree_node<K, T>*& branch)
+check_tree(Tree_node<K, T>* branch)
 {
     if(wants_lsmt(branch)) {
         left_small_turn(*branch);
@@ -233,10 +233,10 @@ check_tree(Tree_node<K, T>*& branch)
         right_small_turn(*branch);
     }
     if(wants_lbt(branch)) {
-        left_big_turn(branch);
+        left_big_turn(*branch);
     }
     if(wants_rbt(branch)) {
-        right_big_turn(branch);
+        right_big_turn(*branch);
     }
 }
 
@@ -468,7 +468,7 @@ remove(Tree<K, T>& birch, K key, bool check_enable = true)
 
 template<typename K, typename T>
 void
-recuprint(Tree_node<K, T>*& branch, std::string& recuheader)
+recuprint(Tree_node<K, T>* branch, std::string& recuheader)
 {
     std::cout << recuheader << branch->data << std::endl;
     recuheader.push_back('|');
@@ -500,14 +500,27 @@ print(Tree<K, T>& birch)
 
 template<typename K, typename T>
 void
-cut_down()
+cut_down(Tree_node<K, T>* branch)
 {
+    if(branch->lchild != nullptr) {
+        std::cout << "going left" << std::endl;
+        cut_down(branch->lchild);
+    }
+    if(branch->rchild != nullptr) {
+        std::cout << "going right" << std::endl;
+        cut_down(branch->rchild);
+    }
+    delete branch;
 }
 
 template<typename K, typename T>
 void
-destructor()
+destructor(Tree<K, T>& birch)
 {
+    std::cout << "Cutting down the tree!" << std::endl;
+    cut_down(birch.rootptr);
+    birch.rootptr = nullptr;
+    birch.t_size = 0;
 }
 
 int
@@ -530,6 +543,10 @@ main()
     for(int i = 10; i < 15; ++i) {
         remove(tester, i);
     }
+    print(tester);
+
+    destructor(tester);
+
     print(tester);
     return 0;
 }
