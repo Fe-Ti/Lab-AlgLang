@@ -3,7 +3,6 @@
 // Cyclic Dualbound List
 //
 
-#include <csignal>
 #include <iostream>
 
 template<typename T> struct CyclicListNode {
@@ -113,7 +112,7 @@ pop_forth(CyclicList<T>& list) // the same as pop_back(CyclicList<T>& list)
         list.first = list.first->next;
         pop_node(list.first->prev, data);
         --list.size;
-        std::cout << "Removed one";
+        std::cout << "Removed one ";
     } else if(list.size == 1) {
         data = list.first->data;
         delete list.first;
@@ -258,9 +257,16 @@ template<typename T>
 void
 destructor(CyclicList<T>& list)
 {
-    while(list.size != 0) {
-        pop_back(list);
+    std::cout << "Destructing list" << std::endl;
+    for(int64_t i = 1; i < list.size; ++i) {
+        list.first->next = list.first->next->next;
+        delete list.first->next->prev;
+        std::cout << "Nodes left: " << list.size - i << std::endl;
     }
+    delete list.first;
+    list.first = nullptr;
+    list.size = 0;
+    std::cout << "Nodes left: " << list.size << std::endl;
 }
 
 template<typename T>
@@ -272,6 +278,9 @@ find(CyclicList<T>& list, T data) // find func just looks though the list
     while((index <= list.size) && (ptr->data != data)) {
         ptr = ptr->next;
         ++index;
+    }
+    if(index > list.size) {
+        index = -1;
     }
     return index;
 }
@@ -372,6 +381,9 @@ main()
     }
 
     std::cout << "14 is #" << find(test_int, 14) << std::endl; // should be 4
+    std::cout << "12314 is " << find(test_int, 12314)
+              << std::endl; // should be -1 (i.e. not found)
+              
     std::cout << "Current size is " << size(test_int) << std::endl;
     // should be 19 (maybe not, I'm not precise)
 
@@ -381,7 +393,7 @@ main()
 
     std::cout << "Performing: extract by index" << std::endl;
     for(int i = 0; i < 5; ++i) {
-        extract(test_int, i * 2);
+        std::cout << extract(test_int, i * 2) << std::endl;
         print(test_int);
     }
 
@@ -390,13 +402,25 @@ main()
 
     std::cout << "Performing: extract by ptr" << std::endl;
     for(int i = -2; i < 5; ++i) {
-        extract(test_int, get_pointer(test_int, i + 2));
+        std::cout << extract(test_int, get_pointer(test_int, i + 2))
+                  << std::endl;
         print(test_int);
     }
 
     std::cout << std::endl;
     print(test_int); // should be 21 13 10 2 101 102 103
 
+    for(int i = 0; i < 2; ++i)
+        std::cout << pop_back(test_int) << std::endl; // testing pop back
+    print(test_int);
+
+    for(int i = 0; i < 2; ++i)
+        std::cout << pop_forth(test_int) << std::endl; // testing pop forth
+
+    std::cout << std::endl;
+    print(test_int);
+
     destructor(test_int);
+    print(test_int);
     return 0;
 }

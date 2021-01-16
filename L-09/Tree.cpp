@@ -105,6 +105,14 @@ constructor(Tree<K, T>& birch) // birch is a tree so why not?
 
 template<typename K, typename T>
 bool
+exists(Tree_node<K, T>*& branch)
+{
+    if(branch != nullptr)
+        return true;
+    return false;
+}
+template<typename K, typename T>
+bool
 wants_lsmt(Tree_node<K, T>*& branch)
 {
     return false;
@@ -216,6 +224,24 @@ update_rstmh(Tree_node<K, T>*& branch, Tree_node<K, T>*& new_node)
 
 template<typename K, typename T>
 void
+check_tree(Tree_node<K, T>*& branch)
+{
+    if(wants_lsmt(branch)) {
+        left_small_turn(*branch);
+    }
+    if(wants_rsmt(branch)) {
+        right_small_turn(*branch);
+    }
+    if(wants_lbt(branch)) {
+        left_big_turn(branch);
+    }
+    if(wants_rbt(branch)) {
+        right_big_turn(branch);
+    }
+}
+
+template<typename K, typename T>
+void
 grow(Tree_node<K, T>*& branch,
      Tree_node<K, T>*& new_node,
      bool check_enable = true)
@@ -233,18 +259,7 @@ grow(Tree_node<K, T>*& branch,
             update_rstmh(branch, new_node);
         }
         if(check_enable) {
-            if(wants_lsmt(branch)) {
-                left_small_turn(*branch);
-            }
-            if(wants_rsmt(branch)) {
-                right_small_turn(*branch);
-            }
-            if(wants_lbt(branch)) {
-                left_big_turn(branch);
-            }
-            if(wants_rbt(branch)) {
-                right_big_turn(branch);
-            }
+            check_tree(branch);
         }
     }
 }
@@ -259,6 +274,7 @@ add(Tree<K, T>& birch, K key, T data, bool check_enable = true)
     } else {
         birch.rootptr = new_node;
     }
+    ++birch.t_size;
     std::cout << "Added " << data << " with key " << key << std::endl;
 }
 
@@ -270,44 +286,220 @@ add(Tree<K, T>& birch, std::pair<K, T> tuple) // an overload for pairs
 }
 
 template<typename K, typename T>
-void
-cut(Tree_node<K, T>*& branch, T& key, bool check_enable = true)
+bool
+is_root(Tree_node<K, T>* branch)
 {
+    if(branch->parent != nullptr) {
+        return false;
+    }
+    return true;
+}
+
+template<typename K, typename T>
+bool
+has_lchild(Tree_node<K, T>* branch)
+{
+    if(branch->lchild == nullptr) {
+        return false;
+    }
+    return true;
+}
+template<typename K, typename T>
+bool
+has_rchild(Tree_node<K, T>* branch)
+{
+    if(branch->rchild == nullptr) {
+        return false;
+    }
+    return true;
+}
+
+template<typename K, typename T>
+void
+set_parents_child_ptr(Tree_node<K, T>* successor, Tree_node<K, T>* child)
+{
+    if(successor->parent->rchild == successor) {
+        successor->parent->rchild = child;
+    } else {
+        successor->parent->lchild = child;
+    }
+}
+
+template<typename K, typename T>
+void
+eject_successor(Tree_node<K, T>* successor)
+{
+    if(has_lchild(successor)) {
+        successor->lchild->parent = successor->parent;
+        set_parents_child_ptr(successor, successor->lchild);
+    } else if(has_rchild(successor)) {
+        successor->rchild->parent = successor->parent;
+        set_parents_child_ptr(successor, successor->rchild);
+    } else {
+        if(successor->parent->rchild == successor) {
+            successor->parent->rchild = nullptr;
+        } else {
+            successor->parent->lchild = nullptr;
+        }
+    }
+}
+
+template<typename K, typename T>
+void
+update_successor(Tree_node<K, T>* successor, Tree_node<K, T>* branch)
+{
+    successor->parent = branch->parent;
+    successor->lchild = branch->lchild;
+    successor->rchild = branch->rchild;
+}
+
+template<typename K, typename T>
+void
+inject_successor(Tree_node<K, T>* successor, Tree_node<K, T>* branch)
+{
+    if(exists(successor->parent)) {
+        if(successor->parent->rchild == branch) {
+            successor->parent->rchild = successor;
+        } else {
+            successor->parent->lchild = successor;
+        }
+    }
+    if(exists(successor->lchild))
+        successor->lchild->parent = successor;
+
+    if(exists(successor->rchild))
+        successor->rchild->parent = successor;
+}
+
+template<typename K, typename T>
+void
+coronate(Tree_node<K, T>* successor, Tree_node<K, T>* branch)
+{
+    if(successor != nullptr) {
+        eject_successor(successor);
+        update_successor(successor, branch);
+        inject_successor(successor, branch);
+    } else {
+        if(exists(branch->parent)) {
+            if(branch->parent->rchild == branch) {
+                branch->parent->rchild = successor;
+            } else {
+                branch->parent->lchild = successor;
+            }
+        }
+    }
+    delete branch;
+}
+
+template<typename K, typename T>
+Tree_node<K, T>*
+find_succssessor(Tree_node<K, T>* branch)
+{
+    Tree_node<K, T>* successor;
+    if(has_lchild(branch)) { // looking for left child
+        successor = branch->lchild;
+        if(successor != nullptr) {
+            while(successor->rchild != nullptr) {
+                successor = successor->rchild;
+            }
+        }
+    } else {
+        successor = branch->rchild;
+        if(successor != nullptr) {
+            while(successor->lchild != nullptr) {
+                successor = successor->lchild;
+            }
+        }
+    }
+    return successor;
+}
+
+template<typename K, typename T>
+void
+cut(Tree<K, T>& birch,
+    Tree_node<K, T>* branch,
+    T& key,
+    bool check_enable = true)
+{
+    if(branch->key != key) {
+        if(branch->key < key) {
+            if(branch->rchild != nullptr) {
+                cut(birch, branch->rchild, key, check_enable);
+            } else {
+                check_enable = false;
+                // if not found we do not need to check the tree
+            }
+        } else {
+            if(branch->lchild != nullptr) {
+                cut(birch, branch->lchild, key, check_enable);
+            } else {
+                check_enable = false;
+            }
+        }
+
+    } else {
+        check_enable = false;
+        Tree_node<K, T>* successor = find_succssessor(branch);
+        coronate(successor, branch); // replacing branch with its successor
+        if(exists(successor)) {
+            if(is_root(successor)) {
+                birch.rootptr = successor;
+            }
+        }
+        --birch.t_size;
+    }
+    if(check_enable) {
+        check_tree(branch);
+    }
 }
 
 template<typename K, typename T>
 void
 remove(Tree<K, T>& birch, K key, bool check_enable = true)
 {
-    cut(birch.rootptr, key, check_enable);
+    if(birch.rootptr != nullptr) {
+        cut(birch, birch.rootptr, key, check_enable);
+    }
+    std::cout << birch.t_size << std::endl;
+    if(birch.t_size == 0) {
+        birch.rootptr = nullptr;
+    }
 }
 
 template<typename K, typename T>
 void
 recuprint(Tree_node<K, T>*& branch, std::string& recuheader)
 {
-    std::cout << recuheader << branch->data << std::endl;
-    if(!recuheader.empty())
-        recuheader.erase(recuheader.size() - 7, 7);
-    recuheader.push_back('|');
-    if(branch->lchild != nullptr) {
-        recuheader += "LChild ";
-        recuprint(branch->lchild, recuheader);
+    if(recuheader.size() < 35) {
+        std::cout << recuheader << branch->data << std::endl;
+        recuheader.push_back('|');
+        if(branch->lchild != nullptr) {
+            std::cout << "going left" << std::endl;
+
+            recuprint(branch->lchild, recuheader);
+        }
+        if(branch->rchild != nullptr) {
+            std::cout << "going right" << std::endl;
+
+            recuprint(branch->rchild, recuheader);
+        }
+        recuheader.pop_back();
+    } else {
+        std::cout << "fck u" << std::endl;
     }
-    if(branch->rchild != nullptr) {
-        recuheader += "RChild ";
-        recuprint(branch->rchild, recuheader);
-    }
-    recuheader.pop_back();
 }
 
 template<typename K, typename T>
 void
 print(Tree<K, T>& birch)
 {
-    std::string recuheader;
-    std::cout << "AVeryLittle Tree:" << std::endl << "Root ";
-    recuprint(birch.rootptr, recuheader);
+    std::string recustr;
+    std::cout << "AVeryLittle Tree:" << std::endl;
+    if(birch.rootptr != nullptr) {
+        recuprint(birch.rootptr, recustr);
+    } else {
+        std::cout << "NULL" << std::endl;
+    }
 }
 
 template<typename K, typename T>
@@ -320,26 +512,22 @@ int
 main()
 {
     std::srand(0);
-    int a;
     Tree<int, int> tester;
     constructor(tester);
-    for(int i = 0; i < 30; ++i) {
-        a = std::rand() % 1000;
-        add(tester, a, a);
+    for(int i = 15; i < 20; ++i) {
+        add(tester, i, i);
     }
-    /*add(tester, 5, std::string("5"));
-    add(tester, 3, std::string("3"));
-    add(tester, 2, std::string("2"));
-    add(tester, 4, std::string("4"));
-    add(tester, 1, std::string("1"));
-    add(tester, 6, std::string("6"));
-    add(tester, 8, std::string("8"));
-    add(tester, 7, std::string("7"));
-    add(tester, 234, std::string("234"));
-    add(tester, 2347, std::string("2347"));*/
+    for(int i = 0; i < 5; ++i) {
+        add(tester, i, i);
+    }
+    for(int i = 5; i < 15; ++i) {
+        add(tester, i, i);
+    }
     print(tester);
-    right_small_turn(*tester.rootptr->lchild);
-    left_small_turn(*tester.rootptr->lchild);
+
+    for(int i = 10; i < 15; ++i) {
+        remove(tester, i);
+    }
     print(tester);
     return 0;
 }
