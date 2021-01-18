@@ -76,6 +76,8 @@ b_write(std::vector<student>& group)
         std::cout << "Failed opening file." << std::endl;
         return;
     }
+
+
     ofile.close();
 }
 
@@ -332,7 +334,10 @@ struct { // custom function object for sort
 void
 print_status(d_matrix& mx)   // printing statistics
 {
-
+    std::cout << "Status: " << std::endl;
+    for(uint64_t i =0; i < mx.d_names.size(); ++i) {
+        std::cout << mx.d_names[i] << " - " << mx.marks_sum[i] / mx.ds_nums[i] << std::endl;
+    }
 }
 
 int
