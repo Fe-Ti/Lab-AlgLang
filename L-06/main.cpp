@@ -76,7 +76,9 @@ b_write(std::vector<student>& group)
         std::cout << "Failed opening file." << std::endl;
         return;
     }
-
+    for(student& s : group){
+    // TODO
+    }
 
     ofile.close();
 }

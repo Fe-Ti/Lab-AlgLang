@@ -1,22 +1,4 @@
-Tester 0
-3
-Alg.Languages
-4
-Calculus
-3
-Informatics Theory
-5
-Tester 1
+tim
+1
+alglang
 2
-Alg.Languages
-0
-Calculus
-2
-Tester 2
-3
-Alg.Languages
-5
-Calculus
-5
-Informatics Theory
-5
