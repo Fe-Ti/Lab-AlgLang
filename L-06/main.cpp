@@ -9,7 +9,6 @@
 #include <map>
 #include <vector>
 
-
 std::string HELP = "Help screen:"
                    "splash - splash screen\n"
                    "load - load group database\n"
@@ -25,21 +24,21 @@ std::string EDIT_HELP = "add - to add student,\n"
                         "cc - to change group code.";
 
 std::string SPLASH =
-    "                                           #######            \n"
-    "   ######    #####                        #       #           \n"
-    "  #@@@@@@#  #@@@@@#                       # ##### #           \n"
-    " #@@#####  #@@####  ######   ######       ###   # #           \n"
-    " #@#       #@#      #@@@@@#  #@@@@@#            # #           \n"
-    " #@@####   #@#      #@###@@# #@###@@#      ###### #           \n"
-    "  #@@@@@#  #@#  ##  #@#  #@# #@#  #@#     #       #           \n"
-    "   ####@@# #@# #@@# #@#  #@# #@###@@#     # ######            \n"
-    "       #@# #@#  #@# #@#  #@# #@@@@@#      # #                 \n"
-    "  #####@@# #@@###@# #@#  #@# #@###@@#     # #                 \n"
-    " #@@@@@@#   #@@@@@# #@#  #@# #@#  #@#     # #######           \n"
-    "  ######     #####  #@###@@# #@####@#     #       #           \n"
-    "                    #@@@@@#  #@@@@@@#      ########           \n"
-    "                    ######   #######                          \n"
-    "                                                              \n";
+  "                                           #######            \n"
+  "   ######    #####                        #       #           \n"
+  "  #@@@@@@#  #@@@@@#                       # ##### #           \n"
+  " #@@#####  #@@####  ######   ######       ###   # #           \n"
+  " #@#       #@#      #@@@@@#  #@@@@@#            # #           \n"
+  " #@@####   #@#      #@###@@# #@###@@#      ###### #           \n"
+  "  #@@@@@#  #@#  ##  #@#  #@# #@#  #@#     #       #           \n"
+  "   ####@@# #@# #@@# #@#  #@# #@###@@#     # ######            \n"
+  "       #@# #@#  #@# #@#  #@# #@@@@@#      # #                 \n"
+  "  #####@@# #@@###@# #@#  #@# #@###@@#     # #                 \n"
+  " #@@@@@@#   #@@@@@# #@#  #@# #@#  #@#     # #######           \n"
+  "  ######     #####  #@###@@# #@####@#     #       #           \n"
+  "                    #@@@@@#  #@@@@@@#      ########           \n"
+  "                    ######   #######                          \n"
+  "                                                              \n";
 
 ////////////////////////////////////////////////////////////////////////////////
 // TODO: parameters in settings (present here as global non constant variables)
@@ -68,16 +67,36 @@ struct d_matrix { // special structure used in analyze func
 };
 
 void
+bwrite_stdstr(std::ofstream& ofile, std::string& s)
+{
+    uint64_t s_len = s.size();
+    ofile.write(reinterpret_cast<char*>(&s_len), sizeof(s_len));
+    ofile.write(s.data(), s_len);
+}
+
+template<typename T>
+void
+bwrite(std::ofstream& ofile, T& data)
+{
+    ofile.write(reinterpret_cast<char*>(&data), sizeof(data));
+}
+
+void
 b_write(std::vector<student>& group)
 {
     std::ofstream ofile(db_name_b, std::ios::binary);
     if(!ofile.is_open()) {
-        // a simple protection for missing files as in other funcs
         std::cout << "Failed opening file." << std::endl;
         return;
     }
-    for(student& s : group){
-    // TODO
+
+    for(student s : group) {
+        bwrite_stdstr(ofile, s.s_name);
+        bwrite(ofile, s.disc_count);
+        for(discipline& d : s.session_results) {
+            bwrite_stdstr(ofile, d.d_name);
+            bwrite(ofile, d.mark);
+        }
     }
 
     ofile.close();
@@ -86,7 +105,6 @@ b_write(std::vector<student>& group)
 void
 operator<<(std::ofstream& ofile, std::vector<student>& group)
 {
-    // the half of this func is in load func
     for(student i : group) {
         std::cout << "Writing " << i.s_name << std::endl;
         ofile << i.s_name << std::endl;
@@ -120,18 +138,54 @@ save(std::vector<student>& group)
     }
 }
 
+void
+bread_stdstr(std::ifstream& ifile, std::string& s)
+{
+    uint64_t s_len;
+    ifile.read(reinterpret_cast<char*>(&s_len), sizeof(s_len));
+    s.resize(s_len);
+    ifile.read(s.data(), s_len);
+}
+
+template<typename T>
+void
+bread(std::ifstream& ifile, T& data)
+{
+    ifile.read(reinterpret_cast<char*>(&data), sizeof(data));
+}
 
 void
 b_read(std::vector<student>& group)
 {
 
-    student buff_student;
     std::ifstream ifile(db_name_b, std::ios::binary);
     if(!ifile.is_open()) {
         // a simple protection for missing files as in other funcs
         std::cout << "Failed opening file." << std::endl;
         return;
     }
+
+    student s; // buffer student
+    discipline d;
+
+    while(!ifile.eof()) {
+        bread_stdstr(ifile, s.s_name);
+        if(!ifile.eof()) {
+            s.session_results.clear();
+            std::cout << "Loading " << s.s_name << "...";
+            bread(ifile, s.disc_count);
+            std::cout << "..." << s.disc_count << "...";
+
+            for(uint16_t i = 0; i < s.disc_count; ++i) {
+                bread_stdstr(ifile, d.d_name);
+                bread(ifile, d.mark);
+                s.session_results.push_back(d);
+            }
+            group.push_back(s);
+            std::cout << "[  OK  ]" << std::endl;
+        }
+    }
+    std::cout << "ok." << std::endl;
     ifile.close(); // closing the stream
 }
 
@@ -143,20 +197,18 @@ operator>>(std::ifstream& ifile, std::vector<student>& group)
     std::string buffer;
 
     std::getline(ifile, new_student.s_name);
-    std::cout << "Name " <<  new_student.s_name << std::endl;
-    while (!new_student.s_name.empty()) {
-        //  ifile.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    std::cout << "Name " << new_student.s_name << std::endl;
+    while(!new_student.s_name.empty()) {
 
-        getline (ifile, buffer);
+        getline(ifile, buffer);
         new_student.disc_count = std::stoi(buffer);
-        std::cout << "DCnt " <<  new_student.disc_count << std::endl;
+        std::cout << "DCnt " << new_student.disc_count << std::endl;
 
         for(uint16_t i = 0; i < new_student.disc_count; ++i) {
-            //    ifile.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
             std::getline(ifile, new_disc.d_name);
-            std::cout << "Name " <<  new_disc.d_name << std::endl;
-            getline (ifile, buffer);
-            new_disc.mark= std::stoi(buffer);
+            std::cout << "Name " << new_disc.d_name << std::endl;
+            getline(ifile, buffer);
+            new_disc.mark = std::stoi(buffer);
             std::cout << "Mark " << new_disc.mark << std::endl;
 
             new_student.session_results.push_back(new_disc);
@@ -165,7 +217,7 @@ operator>>(std::ifstream& ifile, std::vector<student>& group)
         new_student.disc_count = 0;
         new_student.session_results.clear();
         std::getline(ifile, new_student.s_name);
-        std::cout << "Name " <<  new_student.s_name << std::endl;
+        std::cout << "Name " << new_student.s_name << std::endl;
     }
 }
 
@@ -220,11 +272,11 @@ add(std::vector<student>& group)
 }
 
 void
-del(std::vector<student>& group)   // deleting a student
+del(std::vector<student>& group) // deleting a student
 {
     int64_t number;
-    std::cout << "Enter item number to delete[0-"
-              << group.size() - 1 << "](-1 to cancel): ";
+    std::cout << "Enter item number to delete[0-" << group.size() - 1
+              << "](-1 to cancel): ";
     std::cin >> number;
     if(number < 0) {
         std::cout << "ERROR: The number is lesser than 0." << std::endl;
@@ -233,7 +285,6 @@ del(std::vector<student>& group)   // deleting a student
         group.erase(group.begin() + number);
     }
 }
-
 
 void
 edit(std::vector<student>& group)
@@ -271,7 +322,7 @@ operator<<(std::ostream& out, student& buffer_student)
 }
 
 void
-print(std::vector<student>& group)   // printing all students
+print(std::vector<student>& group) // printing all students
 {
     for(student& buffer_student : group) {
         std::cout << buffer_student << std::endl;
@@ -334,11 +385,12 @@ struct { // custom function object for sort
 } abcomp;
 
 void
-print_status(d_matrix& mx)   // printing statistics
+print_status(d_matrix& mx) // printing statistics
 {
     std::cout << "Status: " << std::endl;
-    for(uint64_t i =0; i < mx.d_names.size(); ++i) {
-        std::cout << mx.d_names[i] << " - " << mx.marks_sum[i] / mx.ds_nums[i] << std::endl;
+    for(uint64_t i = 0; i < mx.d_names.size(); ++i) {
+        std::cout << mx.d_names[i] << " - " << mx.marks_sum[i] / mx.ds_nums[i]
+                  << std::endl;
     }
 }
 
