@@ -36,12 +36,33 @@
 #include <string>
 
 template<typename K, typename T> struct AVLTNode {
-    AVLTNode<K,T>* left_st = nullptr;
-    AVLTNode<K,T>* right_st = nullptr;
-    
-    
+    K key;
+    T data;
+    uint16_t height = 1; // this is more than enough for an average desktop PC
+    AVLTNode<K, T>* left_st = nullptr;
+    AVLTNode<K, T>* right_st = nullptr;
 };
 
 template<typename K, typename T> struct AVLTree {
     AVLTNode<K, T>* root_pointer = nullptr;
 };
+
+template<typename K, typename T>
+void
+constructor()
+{
+    
+}
+
+template<typename K, typename T>
+void
+destructor()
+{
+    
+}
+
+int
+main()
+{
+    
+}
