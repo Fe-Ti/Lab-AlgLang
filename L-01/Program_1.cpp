@@ -62,11 +62,11 @@ int main()
 
     ////////////////////////////////////////////////////////////////////
     //	Начало задачи 5
-    int f = 0, d = 0, c = 0, e = 0;
+    unsigned char f = 0, d = 0, c = 0, e = 0;
     std::cout << "\nВведите числа f, d, c, e, разделяя их пробелом.\n";
     std::cin >> f >> d >> c >> e;
 
-    int result5 = (~( f | d )) & (( (~c) & e )|( (~e) & c ));
+    unsigned char result5 = (~( f | d )) & (( (~c) & e )|( (~e) & c ));
 
     std::cout << "Ответ:\n";
     std::cout << "(~(f|d))&(((~c)&e)|((~e)&c)) = "<< std::hex << result5;
