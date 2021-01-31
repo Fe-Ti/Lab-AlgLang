@@ -136,16 +136,19 @@ AVLTNode<K, T>*
 rebalance_subtree(AVLTNode<K, T>* tnode)
 {
     if(get_balance_factor(tnode) == -2) { // left turns (lsth - rsth == -2)
+        std::cout << "YES! " << std::endl;
         if(get_balance_factor(tnode->right_st) > 0) {
             return left_great_turn(tnode);
         }
         return left_small_turn(tnode);
     } else if(get_balance_factor(tnode) == 2) { // right turns
+        std::cout << "YES! " << std::endl;
         if(get_balance_factor(tnode->left_st) < 0) {
             return right_great_turn(tnode);
         }
         return right_small_turn(tnode);
     }
+    std::cout << "NO! " << std::endl;
     return tnode;
 }
 
@@ -154,22 +157,27 @@ AVLTNode<K, T>*
 add_node(AVLTNode<K, T>* tnode, K& key, T& data)
 {
     if(tnode == nullptr) {
+        std::cout << "Inserted" << data << std::endl;
         return new AVLTNode<K, T>{ key, data };
-    }
-    if(tnode->key > key) { // going deeper
-        tnode->left_st = add_node(tnode->left_st, key, data);
     } else {
-        tnode->right_st = add_node(tnode->right_st, key, data);
+        if(tnode->key > key) { // going deeper
+            std::cout << "Going left" << std::endl;
+            tnode->left_st = add_node(tnode->left_st, key, data);
+        } else {
+            std::cout << "Going right" << std::endl;
+            tnode->right_st = add_node(tnode->right_st, key, data);
+        }
+        reset_height(tnode);
+        std::cout << "Rebalance? " << std::endl;
+        return rebalance_subtree(tnode);
     }
-    reset_height(tnode);
-    return rebalance_subtree(tnode);
 }
 
 template<typename K, typename T>
 void
 add(AVLTree<K, T>& atree, K& key, T& data)
 {
-    add_node(atree.root_pointer, key, data);
+    atree.root_pointer = add_node(atree.root_pointer, key, data);
 }
 
 template<typename K, typename T>
@@ -183,7 +191,7 @@ void
 lprint(AVLTNode<K, T>* tnode, std::string& level)
 {
     if(tnode != nullptr) {
-        std::cout << level << "⊦" << tnode->data << std::endl;
+        std::cout << level << "├" << tnode->data << std::endl;
         level.push_back('|');
         lprint(tnode->left_st, level);
         rprint(tnode->right_st, level);
@@ -196,7 +204,7 @@ void
 rprint(AVLTNode<K, T>* tnode, std::string& level)
 {
     if(tnode != nullptr) {
-        std::cout << level << "⎿" << tnode->data << std::endl;
+        std::cout << level << "└" << tnode->data << std::endl;
         level.push_back(' ');
         lprint(tnode->left_st, level);
         rprint(tnode->right_st, level);
@@ -217,8 +225,15 @@ print(AVLTree<K, T> atree)
 int
 main()
 {
+    int lim = 0;
+    std::cout << "Enter the limit (int value)" << std::endl;
+    std::cin >> lim;
     AVLTree<int, int> tester;
-    for(int i = 0; i < 10; ++i)
+    constructor(tester);
+    for(int i = 0; i < lim; ++i) {
         add(tester, i, i);
+        print(tester);
+        std::cout << "Added " << i << std::endl;
+    }
     print(tester);
 }
