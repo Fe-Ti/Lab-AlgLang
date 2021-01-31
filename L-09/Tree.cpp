@@ -135,10 +135,16 @@ template<typename K, typename T>
 AVLTNode<K, T>*
 rebalance_subtree(AVLTNode<K, T>* tnode)
 {
-    if(get_balance_factor(tnode) == -2) {
-        
-    } else if(get_balance_factor(tnode) == 2) {
-        
+    if(get_balance_factor(tnode) == -2) { // left turns (lsth - rsth == -2)
+        if(get_balance_factor(tnode->right_st) > 0) {
+            return left_great_turn(tnode);
+        }
+        return left_small_turn(tnode);
+    } else if(get_balance_factor(tnode) == 2) { // right turns
+        if(get_balance_factor(tnode->left_st) < 0) {
+            return right_great_turn(tnode);
+        }
+        return right_small_turn(tnode);
     }
     return tnode;
 }
@@ -161,8 +167,9 @@ add_node(AVLTNode<K, T>* tnode, K& key, T& data)
 
 template<typename K, typename T>
 void
-add(AVLTree<K, T> atree)
+add(AVLTree<K, T>& atree, K& key, T& data)
 {
+    add_node(atree.root_pointer, key, data);
 }
 
 template<typename K, typename T>
@@ -171,7 +178,47 @@ destructor()
 {
 }
 
+template<typename K, typename T>
+void
+lprint(AVLTNode<K, T>* tnode, std::string& level)
+{
+    if(tnode != nullptr) {
+        std::cout << level << "⊦" << tnode->data << std::endl;
+        level.push_back('|');
+        lprint(tnode->left_st, level);
+        rprint(tnode->right_st, level);
+        level.pop_back();
+    }
+}
+
+template<typename K, typename T>
+void
+rprint(AVLTNode<K, T>* tnode, std::string& level)
+{
+    if(tnode != nullptr) {
+        std::cout << level << "⎿" << tnode->data << std::endl;
+        level.push_back(' ');
+        lprint(tnode->left_st, level);
+        rprint(tnode->right_st, level);
+        level.pop_back();
+    }
+}
+
+template<typename K, typename T>
+void
+print(AVLTree<K, T> atree)
+{
+    std::string level;
+    std::cout << atree.root_pointer->data << std::endl;
+    lprint(atree.root_pointer->left_st, level);
+    rprint(atree.root_pointer->right_st, level);
+}
+
 int
 main()
 {
+    AVLTree<int, int> tester;
+    for(int i = 0; i < 10; ++i)
+        add(tester, i, i);
+    print(tester);
 }
