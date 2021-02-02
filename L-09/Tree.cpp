@@ -135,6 +135,7 @@ template<typename K, typename T>
 AVLTNode<K, T>*
 rebalance_subtree(AVLTNode<K, T>* tnode)
 {
+    reset_height(tnode);
     if(get_balance_factor(tnode) == -2) { // left turns (lsth - rsth == -2)
         std::cout << "YES! " << std::endl;
         if(get_balance_factor(tnode->right_st) > 0) {
@@ -167,7 +168,6 @@ add_node(AVLTNode<K, T>* tnode, K& key, T& data)
             std::cout << "Going right" << std::endl;
             tnode->right_st = add_node(tnode->right_st, key, data);
         }
-        reset_height(tnode);
         std::cout << "Rebalance? " << std::endl;
         return rebalance_subtree(tnode);
     }
@@ -181,9 +181,79 @@ add(AVLTree<K, T>& atree, K& key, T& data)
 }
 
 template<typename K, typename T>
-void
-destructor()
+AVLTNode<K, T>*
+find_max(AVLTNode<K, T>* tnode, AVLTNode<K, T>*& maxkey_node)
 {
+    if(tnode->right_st != nullptr) {
+        tnode->right_st = find_max(tnode->right_st, maxkey_node);
+        return rebalance_subtree(tnode);
+    } else {
+        maxkey_node = tnode;
+        return tnode->left_st;
+    }
+}
+
+template<typename K, typename T>
+AVLTNode<K, T>*
+remove_node(AVLTNode<K, T>* tnode, K& key)
+{
+    if(tnode != nullptr) {
+        if(tnode->key == key) {
+            std::cout << "Data at the given key is " << tnode->data
+                      << std::endl;
+            AVLTNode<K, T>* sub_ptr;
+            if(tnode->left_st != nullptr) {
+                tnode->left_st = find_max(tnode->left_st, sub_ptr);
+                sub_ptr->left_st = tnode->left_st;
+                sub_ptr->right_st = tnode->right_st;
+            } else {
+                sub_ptr = tnode->right_st;
+            }
+            delete tnode;
+            return sub_ptr;
+        } else {
+            if(tnode->key > key) { // going deeper
+                std::cout << "Going left" << std::endl;
+                tnode->left_st = remove_node(tnode->left_st, key);
+            } else {
+                std::cout << "Going right" << std::endl;
+                tnode->right_st = remove_node(tnode->right_st, key);
+            }
+            std::cout << "Rebalance?" << std::endl;
+            return rebalance_subtree(tnode);
+        }
+    } else {
+        return tnode;
+    }
+}
+
+template<typename K, typename T>
+void
+remove(AVLTree<K, T>& atree, K& key)
+{
+    atree.root_pointer = remove_node(atree.root_pointer, key);
+}
+
+template<typename K, typename T>
+void
+erase_tree(AVLTNode<K, T>* tnode)
+{
+    if(tnode->left_st != nullptr) {
+        erase_tree(tnode->left_st);
+    }
+    if(tnode->right_st != nullptr) {
+        erase_tree(tnode->right_st);
+    }
+    delete tnode;
+}
+
+template<typename K, typename T>
+void
+destructor(AVLTree<K, T>& atree)
+{
+    std::cout << "Destructing!... ";
+    erase_tree(atree.root_pointer);
+    std::cout << "[ DONE ]" << std::endl;
 }
 
 template<typename K, typename T>
@@ -236,4 +306,14 @@ main()
         std::cout << "Added " << i << std::endl;
     }
     print(tester);
+    while(lim != 0) {
+        print(tester);
+        std::cout << "Enter the the key to remove (0 to skip)" << std::endl;
+        std::cin >> lim;
+        if(lim != 0)
+            remove(tester, lim);
+    }
+    print(tester);
+    destructor(tester);
+    return 0;
 }
