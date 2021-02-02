@@ -3,6 +3,16 @@
 // AVL tree
 // Some ideas were obtained at
 // https://habr.com/ru/post/150732/
+//
+// Notes:
+// 1) My structures are very similar to ones in the tutorial
+// 2) The same applicable to several functions like left and right small turns
+// 3) The stuff mentioned above was done in the way:
+//      - reading the article
+//      - closing the browser
+//      - grasping what is needed to do
+//      - writing the code
+//      - if got stuck then repeating these steps
 
 /*                                        .--------------->|subsub...
  *##################               -----------------
@@ -58,7 +68,7 @@ constructor(AVLTree<K, T>& atree)
 
 template<typename K, typename T>
 int16_t
-get_height(AVLTNode<K, T>* tnode)
+get_height(AVLTNode<K, T>* tnode) // Returns a value > 0 if the tree exists
 {
     if(tnode == nullptr) {
         return 0;
@@ -68,14 +78,16 @@ get_height(AVLTNode<K, T>* tnode)
 
 template<typename K, typename T>
 int16_t
-get_balance_factor(AVLTNode<K, T>* tnode)
+get_balance_factor(
+  AVLTNode<K, T>* tnode) // the function is used to figure out if the subtree
+                         // should be turned and what type of rotation is needed
 {
     return get_height(tnode->left_st) - get_height(tnode->right_st);
 }
 
 template<typename K, typename T>
 void
-reset_height(AVLTNode<K, T>* tnode)
+reset_height(AVLTNode<K, T>* tnode) // correcting the height of the node
 {
     int16_t ls_height = get_height(tnode->left_st);
     int16_t rs_height = get_height(tnode->right_st);
