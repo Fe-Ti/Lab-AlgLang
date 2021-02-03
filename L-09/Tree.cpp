@@ -6,7 +6,7 @@
 //
 // Notes:
 // 1) My structures are very similar to ones in the tutorial
-// 2) The same applicable to several functions like left and right small turns
+// 2) The same is applicable to several functions like left and right small turns
 // 3) The stuff mentioned above was done in the way:
 //      - reading the article
 //      - closing the browser
