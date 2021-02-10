@@ -3,15 +3,23 @@
 // Yet Another Vector
 #include <ostream>
 
-template<typename T> class Vector
+#ifndef VECTOR
+#define VECTOR
+template<typename T>
+class Vector
 {
-    T* data;
-    uint64_t size;
+    T* v_data;
+    uint64_t v_size;
 
   public:
     Vector();
-    Vector(uint64_t& v_size);
-    std::ostream& operator<<(std::ostream& t_out);
-    T& operator[](uint64_t& index);
+    Vector(uint64_t nv_size);
+
+    uint64_t size();
+    T* data();
+
+    T& operator[](const uint64_t index);
+
     ~Vector();
 };
+#endif

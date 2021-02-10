@@ -4,33 +4,46 @@
 
 #include "vector.h"
 
-Vector::Vector()
+template<typename T>
+Vector<T>::Vector()
 {
-    size = 0;
+    v_size = 0;
 }
 
-Vector::Vector(uint64_t& v_size)
+template<typename T>
+Vector<T>::Vector(uint64_t nv_size)
 {
-    size = v_size;
+    v_size = nv_size;
     if(v_size > 0)
-        data = new T[v_size];
+        v_data = new T[v_size];
 }
 
-std::ostream&
-Vector::operator<<(std::ostream& t_out)
+template<typename T>
+uint64_t
+Vector<T>::size()
 {
-    for(uint64_t i = 0; i < size; ++i) {
-        t_out << data[i] << " ";
-    }
+    return v_size;
 }
 
-T&
-Vector::operator[](uint64_t& index)
+template<typename T>
+T*
+Vector<T>::data()
 {
-    return data[index];
+    return v_data;
 }
 
-Vector::~Vector()
+template<typename T>
+T& Vector<T>::operator[](const uint64_t index)
 {
-    delete[] data;
+    return v_data[index];
 }
+
+template<typename T>
+Vector<T>::~Vector()
+{
+    if(v_size > 0)
+        delete[] v_data;
+}
+
+
+template class Vector<int>;
