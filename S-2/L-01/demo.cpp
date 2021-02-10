@@ -31,7 +31,7 @@ main()
     }
     std::cout << tester1 << std::endl;
     std::cout << tester1.find(a - 6) << std::endl;
-    tester1.replace(10, 6);
+    tester1.replace(0, 6);
     std::cout << tester1 << std::endl;
     tester1.replace(6, 1, 100);
     std::cout << tester1 << std::endl;

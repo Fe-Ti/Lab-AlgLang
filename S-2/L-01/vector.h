@@ -5,6 +5,7 @@
 
 #ifndef VECTOR
 #define VECTOR
+
 template<typename T>
 class Vector
 {
@@ -27,4 +28,5 @@ class Vector
     
     ~Vector(); // destructor
 };
+
 #endif
