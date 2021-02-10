@@ -39,11 +39,50 @@ T& Vector<T>::operator[](const uint64_t index)
 }
 
 template<typename T>
+void
+Vector<T>::push_back(T node)
+{
+    // todo
+}
+
+template<typename T>
+uint64_t
+Vector<T>::find(T node)
+{
+    for(uint64_t i = 0; i < v_size; ++i) {
+        if(v_data[i] == node)
+            return i;
+    }
+    return -1;
+}
+
+template<typename T>
+void
+Vector<T>::replace(T node0, T node1, uint64_t count)
+{
+    if(node0 == node1)
+        return;
+    for(uint64_t i = 0; i < v_size; ++i) {
+        if(count < 1)
+            break;
+        if(v_data[i] == node0) {
+            v_data[i] = node1;
+            --count;
+        }
+    }
+}
+template<typename T>
+void
+Vector<T>::replace(T node0, T node1) // overload for the fnc above
+{
+    replace(node0, node1, 1);
+}
+
+template<typename T>
 Vector<T>::~Vector()
 {
     if(v_size > 0)
         delete[] v_data;
 }
-
 
 template class Vector<int>;

@@ -8,18 +8,23 @@
 template<typename T>
 class Vector
 {
-    T* v_data;
-    uint64_t v_size;
+    T* v_data;       // actual array
+    uint64_t v_size; // used by size()
 
   public:
-    Vector();
-    Vector(uint64_t nv_size);
+    Vector();                 // default constructor
+    Vector(uint64_t nv_size); // constructor with params
 
-    uint64_t size();
-    T* data();
+    uint64_t size(); // returns vector size
+    T* data();       // access to the raw array
 
     T& operator[](const uint64_t index);
 
-    ~Vector();
+    void push_back(T node); // todo
+    uint64_t find(T node); 
+    void replace(T node0, T node1);
+    void replace(T node0, T node1, uint64_t count);
+    
+    ~Vector(); // destructor
 };
 #endif

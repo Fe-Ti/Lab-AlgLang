@@ -19,11 +19,28 @@ operator<<(std::ostream& t_out, Vector<T>& vec)
 int
 main()
 {
-    Vector<int> tester0;
+    int a = 10;
+    //    Vector<int> tester0;
     Vector<int> tester1(10);
 
     tester1[2] = 10;
     std::cout << tester1 << std::endl;
+
+    for(int i = 0; i < a; ++i) {
+        tester1[i] = i;
+    }
+    std::cout << tester1 << std::endl;
+    std::cout << tester1.find(a - 6) << std::endl;
+    tester1.replace(10, 6);
+    std::cout << tester1 << std::endl;
+    tester1.replace(6, 1, 100);
+    std::cout << tester1 << std::endl;
+    tester1.replace(1, 10);
+    std::cout << tester1 << std::endl;
+    std::cout << tester1.find(6) << std::endl;
+    std::cout << tester1.size() << std::endl;
+    // std::cout << tester1 << std::endl;
+    //   std::cout << tester1 << std::endl;
     // std::cout << tester0 << std::endl;
     return 0;
 }
