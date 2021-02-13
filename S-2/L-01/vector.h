@@ -15,6 +15,7 @@ class Vector
   public:
     Vector();                 // default constructor
     Vector(uint64_t nv_size); // constructor with params
+    Vector(Vector& vec);      // copy constructor
 
     uint64_t size(); // returns vector size
     T* data();       // access to the raw array
@@ -22,10 +23,10 @@ class Vector
     T& operator[](const uint64_t index);
 
     void push_back(T node); // todo
-    uint64_t find(T node); 
+    uint64_t find(T node);
     void replace(T node0, T node1);
     void replace(T node0, T node1, uint64_t count);
-    
+
     ~Vector(); // destructor
 };
 
