@@ -82,6 +82,12 @@ main()
     std::cout << "Here is this vector:" << std::endl;
     std::cout << tester0 << std::endl;
     std::cout << "Its allocated size is " << tester0.allocated_size();
+    std::cout << " elements." << std::endl;;
+    std::cout << "Now pushing back 100" << std::endl;
+    tester0.push_back(100);
+    std::cout << "Here is the vector:" << std::endl;
+    std::cout << tester0 << std::endl;
+    std::cout << "Its allocated size is " << tester0.allocated_size();
     std::cout << " elements." << std::endl;
     return 0;
 }
