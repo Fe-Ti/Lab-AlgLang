@@ -9,8 +9,9 @@
 template<typename T>
 class Vector
 {
-    T* v_data;       // actual array
-    uint64_t v_size; // used by size()
+    T* v_data;             // actual array
+    uint64_t v_size;       // used by size()
+    uint64_t v_alloc_size; //
 
   public:
     Vector();                 // default constructor
@@ -18,7 +19,8 @@ class Vector
     Vector(Vector& vec);      // copy constructor
 
     uint64_t size(); // returns vector size
-    T* data();       // access to the raw array
+    uint64_t allocated_size(); // returns amount of allocated elements
+    T* data(); // access to the raw array
 
     T& operator[](const uint64_t index);
 

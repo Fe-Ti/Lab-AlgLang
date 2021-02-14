@@ -20,9 +20,8 @@ int
 main()
 {
     int a;
-    std::cout << "Enter the numver of elements:" << std::endl;
+    std::cout << "Enter the number of elements:" << std::endl;
     std::cin >> a;
-    //    Vector<int> tester0;
     Vector<int> tester1(10);
 
     tester1[2] = 10;
@@ -56,21 +55,33 @@ main()
     std::cout << "Searched for 6, but failed" << std::endl;
     std::cout << tester1.find(6) << std::endl;
 
+    std::cout << "Moving forward..." << std::endl;
     std::cout << "Now the vector size is ";
     std::cout << tester1.size() << std::endl;
 
     std::cout << "Here is the subject of our experiment" << std::endl;
     std::cout << tester1 << std::endl;
+    std::cout << "Its allocated size is " << tester1.allocated_size();
+    std::cout << " elements." << std::endl;
+
     std::cout << "Pushing back 12345" << std::endl;
     tester1.push_back(12345);
     std::cout << "Here is the subject of our experiment again" << std::endl;
     std::cout << tester1 << std::endl;
-    std::cout << "and its size" << std::endl;
-    std::cout << tester1.size() << std::endl;
-    std::cout << "Moving forward..." << std::endl;
+    std::cout << "its size is " << tester1.size() << std::endl;
+    std::cout << "and its allocated size is " << tester1.allocated_size();
+    std::cout << " elements." << std::endl;
 
     Vector<int> tester0(tester1);
     std::cout << "Here is the copy of your vector:" << std::endl;
     std::cout << tester0 << std::endl;
+    std::cout << "Its allocated size is " << tester0.allocated_size();
+    std::cout << " elements." << std::endl;
+    std::cout << "Pushing back 77" << std::endl;
+    tester0.push_back(77);
+    std::cout << "Here is this vector:" << std::endl;
+    std::cout << tester0 << std::endl;
+    std::cout << "Its allocated size is " << tester0.allocated_size();
+    std::cout << " elements." << std::endl;
     return 0;
 }

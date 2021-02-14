@@ -14,16 +14,18 @@ template<typename T>
 Vector<T>::Vector(uint64_t nv_size)
 {
     v_size = nv_size;
-    if(v_size > 0)
-        v_data = new T[v_size];
+    v_alloc_size = v_size;
+    if(v_alloc_size > 0)
+        v_data = new T[v_alloc_size];
 }
 
 template<typename T>
 Vector<T>::Vector(Vector& vec)
 {
     v_size = vec.v_size;
-    if(v_size > 0) {
-        v_data = new T[v_size];
+    v_alloc_size = v_size;
+    if(v_alloc_size > 0) {
+        v_data = new T[v_alloc_size];
         for(uint64_t i = 0; i < v_size; ++i) {
             v_data[i] = vec.v_data[i];
         }
@@ -38,6 +40,13 @@ Vector<T>::size()
 }
 
 template<typename T>
+uint64_t
+Vector<T>::allocated_size()
+{
+    return v_alloc_size;
+}
+
+template<typename T>
 T*
 Vector<T>::data()
 {
@@ -45,8 +54,7 @@ Vector<T>::data()
 }
 
 template<typename T>
-T&
-Vector<T>::operator[](const uint64_t index)
+T& Vector<T>::operator[](const uint64_t index)
 {
     return v_data[index];
 }
@@ -55,14 +63,17 @@ template<typename T>
 void
 Vector<T>::push_back(T node)
 {
-    T* new_v_data = new T[v_size + 1];
-    new_v_data[v_size] = node;
-    for(uint64_t i = 0; i < v_size; ++i) {
-        new_v_data[i] = v_data[i];
+    if(v_alloc_size == v_size) {
+        v_alloc_size*=2;
+        T* new_v_data = new T[v_alloc_size];
+        for(uint64_t i = 0; i < v_size; ++i) {
+            new_v_data[i] = v_data[i];
+        }
+        delete[] v_data;
+        v_data = new_v_data;
     }
+    v_data[v_size] = node;
     ++v_size;
-    delete[] v_data;
-    v_data = new_v_data;
 }
 
 template<typename T>
