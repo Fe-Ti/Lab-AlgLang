@@ -5,9 +5,10 @@
 #include "vector.h"
 
 template<typename T>
-Vector<T>::Vector()
+Vector<T>::Vector() 
 {
     v_size = 0;
+    v_alloc_size = 0;
 }
 
 template<typename T>
