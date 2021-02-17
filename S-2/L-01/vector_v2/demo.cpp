@@ -1,6 +1,6 @@
 // Copyright 2020 Fe-Ti <btm.007@mail.ru>
 //
-// Yet Another Vector (Demo)
+// Yet Another Vector (Demo) 
 
 #include <iostream>
 
@@ -22,7 +22,7 @@ main()
     int a;
     std::cout << "Enter the number of elements:" << std::endl;
     std::cin >> a;
-    Vector<int> tester1(10);
+    Vector<int> tester1(a);
 
     tester1[2] = 10;
     std::cout << "Changed the 3d element, other are undefined:" << std::endl;
@@ -82,7 +82,8 @@ main()
     std::cout << "Here is this vector:" << std::endl;
     std::cout << tester0 << std::endl;
     std::cout << "Its allocated size is " << tester0.allocated_size();
-    std::cout << " elements." << std::endl;;
+    std::cout << " elements." << std::endl;
+    ;
     std::cout << "Now pushing back 100" << std::endl;
     tester0.push_back(100);
     std::cout << "Here is the vector:" << std::endl;

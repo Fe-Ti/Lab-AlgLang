@@ -6,8 +6,8 @@
 //
 // Notes:
 // 1) My structures are very similar to ones in the tutorial
-// 2) The same is applicable to several functions like left and right small turns
-// 3) The stuff mentioned above was done in the way:
+// 2) The same is applicable to several functions like left and right small
+// turns 3) The stuff mentioned above was done in the way:
 //      - reading the article
 //      - closing the browser
 //      - grasping what is needed to do
@@ -47,7 +47,8 @@
 #include <iostream>
 #include <string>
 
-template<typename K, typename T> struct AVLTNode {
+template<typename K, typename T>
+struct AVLTNode {
     K key;
     T data;
     int16_t height = 1; // this is more than enough for an average desktop PC
@@ -55,7 +56,8 @@ template<typename K, typename T> struct AVLTNode {
     AVLTNode<K, T>* right_st = nullptr;
 };
 
-template<typename K, typename T> struct AVLTree {
+template<typename K, typename T>
+struct AVLTree {
     AVLTNode<K, T>* root_pointer;
 };
 
@@ -304,6 +306,32 @@ print(AVLTree<K, T> atree)
     rprint(atree.root_pointer->right_st, level);
 }
 
+template<typename K, typename T>
+void
+find_node(AVLTNode<K, T>* tnode, K key, T& data)
+{
+    if(tnode != nullptr) {
+        if(tnode->key == key) {
+            data = tnode->data;
+        } else {
+            if(tnode->key > key) {
+                find_node(tnode->left_st, key, data);
+            } else {
+                find_node(tnode->right_st, key, data);
+            }
+        }
+    }
+}
+
+template<typename K, typename T>
+T
+find(AVLTree<K, T> atree, K key)
+{
+    T data;
+    find_node(atree.root_pointer, key, data);
+    return data;
+}
+
 int
 main()
 {
@@ -318,12 +346,19 @@ main()
         std::cout << "Added " << i << std::endl;
     }
     print(tester);
-    while(lim != 0) {
+    while(lim != -1) {
         print(tester);
-        std::cout << "Enter the the key to remove (0 to skip)" << std::endl;
+        std::cout << "Enter the the key to remove (-1 to skip)" << std::endl;
         std::cin >> lim;
-        if(lim != 0)
+        if(lim != -1)
             remove(tester, lim);
+    }
+    while(lim != -2) {
+        print(tester);
+        std::cout << "Enter the the key to remove (-2 to skip)" << std::endl;
+        std::cin >> lim;
+        if(lim != -2)
+            std::cout << find(tester, lim) << std::endl;
     }
     print(tester);
     destructor(tester);

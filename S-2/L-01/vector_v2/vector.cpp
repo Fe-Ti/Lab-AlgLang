@@ -1,57 +1,53 @@
 // Copyright 2020 Fe-Ti <btm.007@mail.ru>
 //
-// Yet Another Vector
+// Yet Another Vector (size via ptr tp the last)
 
 #include "vector.h"
 
 template<typename T>
-Vector<T>::Vector() 
+Vector<T>::Vector()
 {
-    v_size = 0;
     v_alloc_size = 0;
+    v_data = nullptr;
+    v_end = nullptr;
 }
 
 template<typename T>
 Vector<T>::Vector(uint64_t nv_size)
 {
-    v_size = nv_size;
-    v_alloc_size = v_size;
-    if(v_alloc_size > 0)
-        v_data = new T[v_alloc_size];
 }
 
 template<typename T>
-Vector<T>::Vector(Vector& vec)
+T*
+Vector<T>::end() const
 {
-    v_size = vec.v_size;
-    v_alloc_size = v_size;
-    if(v_alloc_size > 0) {
-        v_data = new T[v_alloc_size];
-        for(uint64_t i = 0; i < v_size; ++i) {
-            v_data[i] = vec.v_data[i];
-        }
-    }
+    return v_end;
+}
+
+template<typename T>
+T*
+Vector<T>::data() const
+{
+    return v_data;
 }
 
 template<typename T>
 uint64_t
-Vector<T>::size()
+Vector<T>::size() const
 {
-    return v_size;
+    return v_end - v_data;
 }
 
 template<typename T>
 uint64_t
-Vector<T>::allocated_size()
+Vector<T>::allocated_size() const
 {
     return v_alloc_size;
 }
 
 template<typename T>
-T*
-Vector<T>::data()
+Vector<T>::Vector(Vector& vec)
 {
-    return v_data;
 }
 
 template<typename T>
@@ -64,24 +60,13 @@ template<typename T>
 void
 Vector<T>::push_back(T node)
 {
-    if(v_alloc_size == v_size) {
-        v_alloc_size*=2;
-        T* new_v_data = new T[v_alloc_size];
-        for(uint64_t i = 0; i < v_size; ++i) {
-            new_v_data[i] = v_data[i];
-        }
-        delete[] v_data;
-        v_data = new_v_data;
-    }
-    v_data[v_size] = node;
-    ++v_size;
 }
 
 template<typename T>
 uint64_t
-Vector<T>::find(T node)
+Vector<T>::find(T node) const
 {
-    for(uint64_t i = 0; i < v_size; ++i) {
+    for(uint64_t i = 0; i < size(); ++i) {
         if(v_data[i] == node)
             return i;
     }
@@ -94,7 +79,7 @@ Vector<T>::replace(T node0, T node1, uint64_t count)
 {
     if(node0 == node1)
         return;
-    for(uint64_t i = 0; i < v_size; ++i) {
+    for(uint64_t i = 0; i < size(); ++i) {
         if(count < 1)
             break;
         if(v_data[i] == node0) {
@@ -113,8 +98,7 @@ Vector<T>::replace(T node0, T node1) // overload for the fnc above
 template<typename T>
 Vector<T>::~Vector()
 {
-    if(v_size > 0)
-        delete[] v_data;
+    delete[] v_data;
 }
 
 template class Vector<int>;
