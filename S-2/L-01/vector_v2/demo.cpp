@@ -27,6 +27,7 @@ main()
     tester1[2] = 10;
     std::cout << "Changed the 3d element, other are undefined:" << std::endl;
     std::cout << tester1 << std::endl;
+    std::cout << tester1.size() << std::endl;
 
     for(int i = 0; i < a; ++i) {
         tester1[i] = i;

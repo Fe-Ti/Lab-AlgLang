@@ -9,19 +9,43 @@ Vector<T>::Vector()
 {
     v_alloc_size = 0;
     v_data = nullptr;
-    v_end = nullptr;
+    v_back = nullptr;
 }
 
 template<typename T>
 Vector<T>::Vector(uint64_t nv_size)
 {
+    v_alloc_size = nv_size;
+    if(v_alloc_size != 0) {
+        v_data = new T[v_alloc_size];
+        v_back = &v_data[v_alloc_size - 1];
+    } else {
+        v_data = nullptr;
+        v_back = nullptr;
+    }
+}
+
+template<typename T>
+Vector<T>::Vector(Vector& vec)
+{
+    v_alloc_size = vec.size();
+    if(v_alloc_size != 0) {
+        v_data = new T[v_alloc_size];
+        v_back = &v_data[v_alloc_size - 1];
+        for(uint64_t i = 0; i < v_alloc_size; ++i) {
+            v_data[i] = vec[i];
+        }
+    } else {
+        v_data = nullptr;
+        v_back = nullptr;
+    }
 }
 
 template<typename T>
 T*
-Vector<T>::end() const
+Vector<T>::back() const
 {
-    return v_end;
+    return v_back;
 }
 
 template<typename T>
@@ -35,7 +59,7 @@ template<typename T>
 uint64_t
 Vector<T>::size() const
 {
-    return v_end - v_data;
+    return v_back - v_data + 1;
 }
 
 template<typename T>
@@ -43,11 +67,6 @@ uint64_t
 Vector<T>::allocated_size() const
 {
     return v_alloc_size;
-}
-
-template<typename T>
-Vector<T>::Vector(Vector& vec)
-{
 }
 
 template<typename T>
@@ -60,6 +79,24 @@ template<typename T>
 void
 Vector<T>::push_back(T node)
 {
+    if(size() == v_alloc_size) {
+        if(v_alloc_size == 0) {
+            ++v_alloc_size;
+        } else {
+            v_alloc_size *= 2;
+        }
+        T* new_v_data = new T[v_alloc_size];
+        for(uint64_t i = 0; i < size(); ++i) {
+            new_v_data[i] = v_data[i];
+        }
+        new_v_data[size()] = node;
+        v_back = &new_v_data[size()];
+        delete[] v_data;
+        v_data = new_v_data;
+    } else {
+        v_data[size()] = node;
+        v_back = &v_data[size()];
+    }
 }
 
 template<typename T>
