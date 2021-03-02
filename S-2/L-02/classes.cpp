@@ -9,18 +9,19 @@ Family::Family(std::string s_name, uint16_t m_count, uint64_t t_income)
     member_count = m_count;
     total_income = t_income;
 }
-uint64_t
+long double
 Family::average_income() const
 {
-    return total_income / std::static_cast<float>(member_count);
+    return (total_income / static_cast<float>(member_count));
 }
 
 void
 Family::print_status() const
 {
-    std::cout << "Family surname " << surname << std::endl;
-    std::cout << "Family member count " << member_count << std::endl;
-    std::cout << "Family total income " << total_income << std::endl;
+    //    std::cout << "Family object status:" << std::endl;
+    std::cout << "Family surname: " << surname << std::endl;
+    std::cout << "Family member count: " << member_count << std::endl;
+    std::cout << "Family total income: " << total_income << std::endl;
 }
 
 Family::~Family()
@@ -38,9 +39,10 @@ Region::Region(std::string name, uint64_t p_size, uint64_t ai_threshold)
 void
 Region::print_status() const
 {
-    std::cout << "Region name" << r_name << std::endl;
-    std::cout << "Region payoff size" << payoff_size << std::endl;
-    std::cout << "Region average income threshold" << aver_income_threshold
+    //    std::cout << "Region object status:" << std::endl;
+    std::cout << "Region name: " << r_name << std::endl;
+    std::cout << "Region payoff size: " << payoff_size << std::endl;
+    std::cout << "Region average income threshold: " << aver_income_threshold
               << std::endl;
 }
 
@@ -49,26 +51,36 @@ Region::~Region()
     std::cout << "Destructing object of the class Region" << std::endl;
 }
 
-RegionFamily(Family f, Region r)
-{
-}
-RegionFamily(std::string s_name,
-             uint16_t m_count,
-             uint64_t t_income,
-             std::string name,
-             uint64_t p_size,
-             uint64_t ai_threshold)
+RegionFamily::RegionFamily(std::string s_name,
+                           uint16_t m_count,
+                           uint64_t t_income,
+                           std::string name,
+                           uint64_t p_size,
+                           uint64_t ai_threshold)
+  : Family(s_name, m_count, t_income)
+  , Region(name, p_size, ai_threshold)
 {
 }
 
-uint64_t
+long double
 RegionFamily::average_income() const
 {
-    return (total_income + payoff_size) / static_cast<float>(member_count);
+    if(Family::average_income() < aver_income_threshold)
+        return ((total_income + payoff_size) /
+                static_cast<float>(member_count));
+    else
+        return Family::average_income();
 }
 
 void
 RegionFamily::print_status() const
+{
+    std::cout << "RegionFamily object:" << std::endl;
+    Family::print_status();
+    Region::print_status();
+}
+
+RegionFamily::~RegionFamily()
 {
     std::cout << "Destructing a RegionFamily object" << std::endl;
 }

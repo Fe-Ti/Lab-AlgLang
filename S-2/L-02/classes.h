@@ -10,19 +10,21 @@
 
 class Family
 {
+  protected:
     std::string surname;
     uint16_t member_count;
     uint64_t total_income;
 
   public:
     Family(std::string s_name, uint16_t m_count, uint64_t t_income);
-    uint64_t average_income() const;
+    long double average_income() const;
     void print_status() const;
     ~Family();
-}
+};
 
 class Region
 {
+  protected:
     std::string r_name;
     uint64_t payoff_size;
     uint64_t aver_income_threshold;
@@ -31,23 +33,22 @@ class Region
     Region(std::string name, uint64_t p_size, uint64_t ai_threshold);
     void print_status() const;
     ~Region();
-}
+};
 
 class RegionFamily
   : public Family
   , public Region
 {
   public:
-    RegionFamily(Family f, Region r);
     RegionFamily(std::string s_name,
                  uint16_t m_count,
                  uint64_t t_income,
                  std::string name,
                  uint64_t p_size,
                  uint64_t ai_threshold);
-    uint64_t average_income();
+    long double average_income() const;
     void print_status() const;
     ~RegionFamily();
-}
+};
 
 #endif
