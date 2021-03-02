@@ -17,11 +17,13 @@ main()
     uint64_t aver_income_threshold = 100;
     std::string r_name = "TEST RN";
 
+    std::cout << std::endl;
     Family f(surname0, member_count, total_income0);
     std::cout << "Family sample object" << std::endl;
     f.print_status();
     std::cout << "Aver. income: " << f.average_income() << std::endl;
 
+    std::cout << std::endl;
     Region r(r_name, payoff_size, aver_income_threshold);
     std::cout << "Region sample object" << std::endl;
     r.print_status();
@@ -39,9 +41,11 @@ main()
                      payoff_size,
                      aver_income_threshold);
 
+    std::cout << std::endl;
     std::cout << "RegionFamily sample object #0" << std::endl;
     rf0.print_status();
     std::cout << "Aver. income: " << rf0.average_income() << std::endl;
+    std::cout << std::endl;
 
     std::cout << "RegionFamily sample object #1" << std::endl;
     rf1.print_status();
