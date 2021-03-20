@@ -5,7 +5,7 @@
 
 #include <iostream>
 
-class ResistorConnection
+class ResistorConnection // abstract class
 {
   public:
     virtual float calculate_resistance() const = 0;
