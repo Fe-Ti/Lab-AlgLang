@@ -14,9 +14,10 @@ class Vector
     uint64_t v_alloc_size; // allocated memory size (in T-units)
 
   public:
-    Vector();                 // default constructor
-    Vector(uint64_t nv_size); // constructor with params
-    Vector(Vector& vec);      // copy constructor
+    Vector();                  // default constructor
+    Vector(uint64_t nv_size);  // constructor with params
+    Vector(const Vector& vec); // copy constructor
+    Vector(Vector&& vec);
 
     uint64_t size();           // returns vector size
     uint64_t allocated_size(); // returns amount of allocated elements
@@ -25,10 +26,15 @@ class Vector
     T& operator[](const uint64_t index);
 
     void push_back(T node);
-    
+
     uint64_t find(T node);
     void replace(T node0, T node1);
     void replace(T node0, T node1, uint64_t count);
+
+    Vector<T> operator-();
+    Vector<T> operator+(Vector<T>& vec);
+    Vector<T>& operator=(Vector& vec);
+    Vector<T>& operator=(Vector<T>&& vec);
 
     ~Vector(); // destructor
 };

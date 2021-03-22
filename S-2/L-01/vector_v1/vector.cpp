@@ -28,7 +28,7 @@ Vector<T>::Vector(uint64_t nv_size)
 }
 
 template<typename T>
-Vector<T>::Vector(Vector& vec)
+Vector<T>::Vector(const Vector& vec)
 {
     v_size = vec.v_size;
     v_alloc_size = v_size; // creating a copy only of defined elements
@@ -40,6 +40,45 @@ Vector<T>::Vector(Vector& vec)
     } else {
         v_data = nullptr;
     }
+}
+
+template<typename T>
+Vector<T>::Vector(Vector&& vec)
+{
+    v_size = vec.v_size;
+    v_alloc_size = v_size; // creating a copy only of defined elements
+    v_data = vec.data();
+    vec.v_data = nullptr;
+}
+template<typename T>
+Vector<T>&
+Vector<T>::operator=(Vector&& vec)
+{
+    if(v_data!=nullptr)
+        delete[] v_data;
+    v_size = vec.v_size;
+    v_alloc_size = v_size;
+    v_data = vec.data();
+    vec.v_data = nullptr;
+    return *this;
+}
+template<typename T>
+Vector<T>&
+Vector<T>::operator=(Vector& vec)
+{
+    if(v_data!=nullptr)
+        delete[] v_data;
+    v_size = vec.v_size;
+    v_alloc_size = v_size; // creating a copy only of defined elements
+    if(v_alloc_size > 0) {
+        v_data = new T[v_alloc_size];
+        for(uint64_t i = 0; i < v_size; ++i) {
+            v_data[i] = vec.v_data[i];
+        }
+    } else {
+        v_data = nullptr;
+    }
+    return *this;
 }
 
 template<typename T>
@@ -64,9 +103,35 @@ Vector<T>::data()
 }
 
 template<typename T>
-T& Vector<T>::operator[](const uint64_t index)
+T&
+Vector<T>::operator[](const uint64_t index)
 {
     return v_data[index];
+}
+
+template<typename T>
+Vector<T>
+Vector<T>::operator-()
+{
+    Vector<T> newvec(v_size);
+    for(uint64_t i = 0; i < v_size; ++i) {
+        newvec[i] = -v_data[i];
+    }
+    return newvec;
+}
+
+template<typename T>
+Vector<T>
+Vector<T>::operator+(Vector<T>& vec)
+{
+    if(v_size != vec.size()) {
+        throw "Vector sizes do not match!";
+    }
+    Vector<T> newvec(v_size);
+    for(uint64_t i = 0; i < v_size; ++i) {
+        newvec[i] = v_data[i] + vec[i];
+    }
+    return newvec;
 }
 
 template<typename T>

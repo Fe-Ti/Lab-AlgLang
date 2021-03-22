@@ -90,5 +90,14 @@ main()
     std::cout << tester0 << std::endl;
     std::cout << "Its allocated size is " << tester0.allocated_size();
     std::cout << " elements." << std::endl;
+
+    Vector<int> tester4 = -tester1;
+    std::cout << "Here is the copy (tester4) of -tester1:" << std::endl;
+    std::cout << tester4 << std::endl;
+    std::cout << "Its allocated size is " << tester4.allocated_size();
+    std::cout << " elements." << std::endl;
+    std::cout << "Now let's add tester4 to tester1" << std::endl;
+    tester4 = tester4 + tester1;
+    std::cout << tester4 << std::endl;
     return 0;
 }
