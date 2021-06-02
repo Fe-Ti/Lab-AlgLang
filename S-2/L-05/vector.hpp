@@ -2,8 +2,9 @@
 #ifndef VECTOR
 #define VECTOR
 
-template<typename T>
-class Vector
+#include <cmath>
+
+template<typename T> class Vector
 {
     T* _data;
     size_t _size;
@@ -79,11 +80,17 @@ class Vector
     {
         return _size == 0;
     }
-    //////////////////////////////////
+    ////////////////////////////////// TBD
     void reserve(size_t new_size)
     {
     }
     //////////////////////////////////
+    void copy_data_to(T* new_data){
+        for(size_t i = 0; i < _size; ++i){
+            new_data[i] = _data[i];
+        }
+    }
+
     void insert(size_t index)
     {
     }
@@ -96,13 +103,35 @@ class Vector
 
     void push_back(T element)
     {
+        if(_alloc_size == 0) {
+            _alloc_size = std::round(magnifier);
+            _data = new T[_alloc_size];
+            _data[0] = element;
+            ++_size;
+        } else if(_size == capacity()) {
+            _alloc_size = std::round(_alloc_size * magnifier);
+            T* new_data = new T[_alloc_size];
+            copy_data_to(new_data)
+            delete [] _data;
+            _data = new_data;
+            _data[_size] = element;
+            ++_size;
+        } else {
+            _data[_size] = element;
+            ++_size;
+        }
     }
+
     void pop_back()
     {
+        if(_size != 0){
+            --_size; // just say we have one element less
+        }
     }
 
     void resize(size_t new_size)
     {
+        
     }
 
     friend inline void swap(Vector& v0, Vector& v1);
