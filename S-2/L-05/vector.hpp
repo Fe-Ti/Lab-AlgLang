@@ -4,6 +4,8 @@
 
 #include <cmath>
 
+#include "rao_iterator.hpp"
+
 template<typename T> class Vector
 {
     T* _data;
