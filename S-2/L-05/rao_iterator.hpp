@@ -56,15 +56,15 @@ class RAO_iterator // bamboo pipestem iterator
         return temp;
     }
     reference operator[](size_t index) const { return _pos[index]; }
-    RAO_iterator<T> operator+(difference_type const& diff) const
+    RAO_iterator<T> operator+(const difference_type& diff) const
     {
         return RAO_iterator<T>(_pos + diff);
     }
+    template<typename TF>
+    friend inline RAO_iterator<TF> operator+(const std::ptrdiff_t& diff,
+                                             const RAO_iterator<TF>& iter);
 
-    friend inline RAO_iterator<T> operator+(difference_type const& diff,
-                                            const RAO_iterator<T>& iter);
-
-    RAO_iterator<T> operator-(difference_type const& diff) const
+    RAO_iterator<T> operator-(const difference_type& diff) const
     {
         return RAO_iterator<T>(_pos - diff);
     }
@@ -72,12 +72,12 @@ class RAO_iterator // bamboo pipestem iterator
     {
         return std::distance(other._pos, _pos);
     }
-    RAO_iterator<T>& operator+=(difference_type const& diff)
+    RAO_iterator<T>& operator+=(const difference_type& diff)
     {
         _pos += diff;
         return *this;
     }
-    RAO_iterator<T>& operator-=(difference_type const& diff)
+    RAO_iterator<T>& operator-=(const difference_type& diff)
     {
         _pos -= diff;
         return *this;
@@ -100,12 +100,13 @@ class RAO_iterator // bamboo pipestem iterator
     }
 };
 
-template<typename T>
-RAO_iterator<T>
-operator+(RAO_iterator::difference_type const& diff,
-          const RAO_iterator<T>& iter)
+template<typename TF>
+RAO_iterator<TF>
+operator+(const std::ptrdiff_t& diff,
+          // something went wrong with difference_type, so falling back
+          const RAO_iterator<TF>& iter)
 {
-    return RAO_iterator<T>(iter._pos + diff);
+    return RAO_iterator<TF>(iter._pos + diff);
 }
 
 #endif

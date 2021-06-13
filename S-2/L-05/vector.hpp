@@ -3,8 +3,9 @@
 #define VECTOR
 
 #include <cmath>
+#include <stdexcept>
 
-//#include "rao_iterator.hpp"
+#include "rao_iterator.hpp"
 
 template<typename T>
 class Vector
@@ -15,7 +16,7 @@ class Vector
 
     float magnifier = 1.5;
 
-    void copy_data_to(T* new_data, csize = _size)
+    void copy_data_to(T* new_data, size_t csize)
     {
         for (size_t i = 0; i < csize; ++i) {
             new_data[i] = _data[i];
@@ -44,7 +45,7 @@ class Vector
         return _data[index];
     }
 
-    operator[](const size_t& index) { return _data[index]; }
+    T& operator[](const size_t& index) { return _data[index]; }
 
     T& front() { return _data[0]; }
 
@@ -58,17 +59,18 @@ class Vector
 
     size_t allocated_size() const { return _alloc_size; }
 
-    //RAO_iterator begin() { return RAO_iterator(&_data[0]); }
+    RAO_iterator<T> begin() { return RAO_iterator<T>(&_data[0]); }
 
-    //RAO_iterator end() { return RAO_iterator(&_data[_size]); }
+    RAO_iterator<T> end() { return RAO_iterator<T>(&_data[_size]); }
 
     bool empty() { return _size == 0; }
 
     void reserve(size_t new_size)
     {
         if (new_size > capacity()) {
-            new_data = new T[new_size + 1]; // we are speaking about capacity
-            copy_data_to(new_data); // so we need one more element in the array
+            T* new_data = new T[new_size + 1]; // we are speaking about capacity
+            copy_data_to(new_data,
+                         _size); // so we need one more element in the array
             delete[] _data;
             _data = new_data;
             _alloc_size = new_size + 1;
@@ -77,8 +79,8 @@ class Vector
     }
 
     void insert(size_t index) {}
-    void erase(RAO_iterator iter) {}
-    void erase(RAO_iterator iter_first, RAO_iterator iter_last) {}
+    void erase(RAO_iterator<T> iter) {}
+    void erase(RAO_iterator<T> iter_first, RAO_iterator<T> iter_last) {}
 
     void push_back(T element)
     {
@@ -92,7 +94,7 @@ class Vector
             // if there isn't enough space then get some more
             _alloc_size = std::round(_alloc_size * magnifier);
             T* new_data = new T[_alloc_size];
-            copy_data_to(new_data);
+            copy_data_to(new_data, _size);
             delete[] _data;
             _data = new_data;
             _data[_size] = element;
@@ -123,16 +125,14 @@ class Vector
         if (new_size == _size)
             return;
         if (new_size >= _alloc_size) {
-            new_data = new T[new_size + 1];
-            copy_data_to(new_data);
+            T* new_data = new T[new_size + 1];
+            copy_data_to(new_data, _size);
             delete[] _data;
             _data = new_data;
             _alloc_size = new_size + 1;
         }
         _size = new_size;
     }
-
-    friend inline void swap(Vector<T>& v0, Vector<T>& v1);
 
     void clear()
     {
@@ -152,7 +152,7 @@ class Vector
         _alloc_size = _size; // creating a copy only of defined elements
         if (_alloc_size > 0) {
             _data = new T[_alloc_size];
-            for (uint64_t i = 0; i < _size; ++i) {
+            for (size_t i = 0; i < _size; ++i) {
                 _data[i] = vec._data[i];
             }
         } else {
@@ -160,13 +160,15 @@ class Vector
         }
         return *this;
     }
+    template<typename TF>
+    friend void swap(Vector<TF>& v0, Vector<TF>& v1);
 };
 
-template<typename T>
+template<typename TF>
 void
-swap(Vector<T>& v0, Vector<T>& v1)
+swap(Vector<TF>& v0, Vector<TF>& v1)
 {
-    T* tmp = v0._data;
+    TF* tmp = v0._data;
     v0._data = v1._data;
     v1._data = tmp;
 }
