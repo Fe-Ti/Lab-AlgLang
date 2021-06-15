@@ -1,0 +1,13 @@
+---
+# Style Uti
+BasedOnStyle: Mozilla
+IndentWidth: 4
+---
+Language: Cpp
+BreakBeforeBraces: Linux
+AlignEscapedNewlinesLeft: true
+AlignTrailingComments: true
+BreakConstructorInitializersBeforeComma: true
+IndentCaseLabels: true
+SpaceBeforeAssignmentOperators: true
+---

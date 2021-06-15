@@ -106,6 +106,18 @@ class Vector
         }
     }
 
+    void shrink_to_fit()
+    {
+        if (_size == capacity()) {
+            return;
+        }
+        _alloc_size = _size + 1;
+        T* new_data = new T[_alloc_size];
+        copy_data_to(new_data, _size);
+        delete[] _data;
+        _data = new_data;
+    }
+
     void pop_back()
     {
         if (_size != 0) {
