@@ -1,22 +1,19 @@
 // Copyright 2021 Fe-Ti <btm.007@mail.ru>
-#include <iostream>
+
+//#include <iostream>
 
 #ifndef VECTOR
 #define VECTOR
 
 /*
- * This is a vector imitation, which does not copy STL very accurate
- * Implementation can:
+ * This vector imitation does not copy STL very accurate.
+ *
+ * The Implementation can:
  *  - be used in range based for;
  *  - push and pop back the values;
- *  -
- *
- *
- *
- *
- *
- *
- *
+ *  - insert one or more elements into vector;
+ *  - erase, resize, clear and shrink to fit;
+ *  - some other stuff.
  */
 
 #include <cmath>
@@ -31,12 +28,12 @@ class Vector
     size_t _size;
     size_t _alloc_size;
 
-    float magnifier = 1.5;
+    float magnifier = 1.5; // is used when adding elements (insert and etc.)
 
     void copy_data_to(T* new_data,
                       size_t csize,
                       size_t ref_offset = 0,
-                      size_t copy_offset = 0)
+                      size_t copy_offset = 0) // internal function
     {
         for (size_t i = 0; i < csize; ++i) {
             new_data[i + copy_offset] = _data[i + ref_offset];
@@ -44,7 +41,7 @@ class Vector
     }
 
   public:
-    Vector()
+    Vector() // defaults
     {
         _data = nullptr;
         _size = 0;
@@ -60,6 +57,7 @@ class Vector
 
     Vector(const Vector& origin_v, float custom_magnifier = 1.5)
     {
+        // copy constructor, note the copy is not really equal to the ref.
         magnifier = custom_magnifier;
         _alloc_size = std::round(origin_v.size() * magnifier);
         _data = new T[_alloc_size];
@@ -67,33 +65,40 @@ class Vector
         origin_v.copy_data_to(_data, _size);
     }
 
-    T& at(const size_t& index)
+    T& at(const size_t& index) // get element by its position
     {
         if (index > size())
-            throw std::out_of_range();
+            throw std::out_of_range(); // throw an exception
         return _data[index];
     }
 
+    // the same as above, but does no checks
     T& operator[](const size_t& index) { return _data[index]; }
 
+    // get the first
     T& front() { return _data[0]; }
 
+    // get the last
     T& back() { return _data[_size - 1]; }
 
+    // get pointer of the first
     T* data() { return _data; }
 
     size_t size() const { return _size; }
 
+    // we always have a phantom 'end' element so capacity!=allocated_size
     size_t capacity() const { return _alloc_size - 1; }
 
     size_t allocated_size() const { return _alloc_size; }
 
+    // iterators for range based for
     RAO_iterator<T> begin() { return RAO_iterator<T>(&_data[0]); }
-
     RAO_iterator<T> end() { return RAO_iterator<T>(&_data[_size]); }
 
+    // is it empty?
     bool empty() { return _size == 0; }
 
+    // reallocate more space or do nothing
     void reserve(size_t new_size)
     {
         if (new_size > capacity()) {
@@ -108,6 +113,7 @@ class Vector
         }
     }
 
+    // append an element
     void push_back(T element)
     {
         if (_alloc_size == 0) {
@@ -132,10 +138,11 @@ class Vector
         }
     }
 
+    // the function that clears the unused space via reallocation
     void shrink_to_fit()
     {
         if (_size == capacity()) {
-            return;
+            return; // if the vector is maxed out then do nothing
         }
         _alloc_size = _size + 1;
         T* new_data = new T[_alloc_size];
@@ -144,14 +151,22 @@ class Vector
         _data = new_data;
     }
 
+    // insert one or more elements
     void insert(size_t index, const T& element, size_t el_count = 1)
     {
+        // firstly check if the index is in the vector
         if (index < _size) {
             if (_size + el_count - 1 < capacity()) {
+                // if the capacity is enough to store the vector+new_elements
+                // then just shift all elements after the defined index
                 for (size_t i = _size - 1; i >= index; --i) {
                     _data[i + el_count] = _data[i];
                 }
             } else {
+                // else allocate new memory, then copy the part before index
+                // to new_data
+                // and then copy the part after index to the new_data array
+                // with some offset
                 _alloc_size = std::round((_alloc_size + el_count) * magnifier);
                 T* new_data = new T[_alloc_size];
                 copy_data_to(new_data, index);
@@ -164,6 +179,7 @@ class Vector
             }
             _size += el_count;
         } else {
+            // if the defined index is not in the vector then throw an exception
             throw std::out_of_range("Index is out of vector");
         }
     }
