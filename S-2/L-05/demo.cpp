@@ -35,6 +35,7 @@ main()
     v0.push_back(25390);
 	print_info(v0);
     v0.push_back(8);
+	print_info(v0);
     v0.push_back(311);
 	print_info(v0);
     v0.insert(3, 69);

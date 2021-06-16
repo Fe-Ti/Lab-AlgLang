@@ -38,10 +38,8 @@ class Vector
                       size_t ref_offset = 0,
                       size_t copy_offset = 0)
     {
-        for (size_t i = ref_offset; i < csize; ++i) {
-            new_data[i + copy_offset] = _data[i];
-            std::cout << "Copying #" << i << " element to #" << i + copy_offset
-                      << std::endl;
+        for (size_t i = 0; i < csize; ++i) {
+            new_data[i + copy_offset] = _data[i + ref_offset];
         }
     }
 
