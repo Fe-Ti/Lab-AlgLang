@@ -1,6 +1,23 @@
 // Copyright 2021 Fe-Ti <btm.007@mail.ru>
+#include <iostream>
+
 #ifndef VECTOR
 #define VECTOR
+
+/*
+ * This is a vector imitation, which does not copy STL very accurate
+ * Implementation can:
+ *  - be used in range based for;
+ *  - push and pop back the values;
+ *  -
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ */
 
 #include <cmath>
 #include <stdexcept>
@@ -16,10 +33,15 @@ class Vector
 
     float magnifier = 1.5;
 
-    void copy_data_to(T* new_data, size_t csize)
+    void copy_data_to(T* new_data,
+                      size_t csize,
+                      size_t ref_offset = 0,
+                      size_t copy_offset = 0)
     {
-        for (size_t i = 0; i < csize; ++i) {
-            new_data[i] = _data[i];
+        for (size_t i = ref_offset; i < csize; ++i) {
+            new_data[i + copy_offset] = _data[i];
+            std::cout << "Copying #" << i << " element to #" << i + copy_offset
+                      << std::endl;
         }
     }
 
@@ -33,9 +55,18 @@ class Vector
 
     Vector(const size_t& size, float custom_magnifier = 1.5)
     {
-        _data = new T[size];
-        _alloc_size = size;
         magnifier = custom_magnifier;
+        _alloc_size = size;
+        _data = new T[size];
+    }
+
+    Vector(const Vector& origin_v, float custom_magnifier = 1.5)
+    {
+        magnifier = custom_magnifier;
+        _alloc_size = std::round(origin_v.size() * magnifier);
+        _data = new T[_alloc_size];
+        _size = origin_v.size();
+        origin_v.copy_data_to(_data, _size);
     }
 
     T& at(const size_t& index)
@@ -68,19 +99,16 @@ class Vector
     void reserve(size_t new_size)
     {
         if (new_size > capacity()) {
-            T* new_data = new T[new_size + 1]; // we are speaking about capacity
-            copy_data_to(new_data,
-                         _size); // so we need one more element in the array
+            T* new_data = new T[new_size + 1];
+            // we are speaking about capacity
+            // so we need one more element in the array
+            copy_data_to(new_data, _size);
             delete[] _data;
             _data = new_data;
             _alloc_size = new_size + 1;
             _size = new_size;
         }
     }
-
-    void insert(size_t index) {}
-    void erase(RAO_iterator<T> iter) {}
-    void erase(RAO_iterator<T> iter_first, RAO_iterator<T> iter_last) {}
 
     void push_back(T element)
     {
@@ -117,6 +145,33 @@ class Vector
         delete[] _data;
         _data = new_data;
     }
+
+    void insert(size_t index, const T& element, size_t el_count = 1)
+    {
+        if (index < _size) {
+            if (_size + el_count - 1 < capacity()) {
+                for (size_t i = _size - 1; i >= index; --i) {
+                    _data[i + el_count] = _data[i];
+                }
+            } else {
+                _alloc_size = std::round((_alloc_size + el_count) * magnifier);
+                T* new_data = new T[_alloc_size];
+                copy_data_to(new_data, index);
+                copy_data_to(new_data, _size - index, index, index + el_count);
+                delete[] _data;
+                _data = new_data;
+            }
+            for (size_t i = index; i < index + el_count; ++i) {
+                _data[i] = element;
+            }
+            _size += el_count;
+        } else {
+            throw std::out_of_range("Index is out of vector");
+        }
+    }
+
+    void erase(RAO_iterator<T> iter) {}
+    void erase(RAO_iterator<T> iter_first, RAO_iterator<T> iter_last) {}
 
     void pop_back()
     {
