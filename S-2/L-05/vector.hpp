@@ -35,7 +35,7 @@ class Vector
                       size_t ref_offset = 0,
                       size_t copy_offset = 0) // internal function
     {
-        for (size_t i = 0; i < csize; ++i) {
+        for(size_t i = 0; i < csize; ++i) {
             new_data[i + copy_offset] = _data[i + ref_offset];
         }
     }
@@ -67,41 +67,71 @@ class Vector
 
     T& at(const size_t& index) // get element by its position
     {
-        if (index > size())
+        if(index > size())
             throw std::out_of_range(); // throw an exception
         return _data[index];
     }
 
     // the same as above, but does no checks
-    T& operator[](const size_t& index) { return _data[index]; }
+    T& operator[](const size_t& index)
+    {
+        return _data[index];
+    }
 
     // get the first
-    T& front() { return _data[0]; }
+    T& front()
+    {
+        return _data[0];
+    }
 
     // get the last
-    T& back() { return _data[_size - 1]; }
+    T& back()
+    {
+        return _data[_size - 1];
+    }
 
     // get pointer of the first
-    T* data() { return _data; }
+    T* data()
+    {
+        return _data;
+    }
 
-    size_t size() const { return _size; }
+    size_t size() const
+    {
+        return _size;
+    }
 
     // we always have a phantom 'end' element so capacity!=allocated_size
-    size_t capacity() const { return _alloc_size - 1; }
+    size_t capacity() const
+    {
+        return _alloc_size - 1;
+    }
 
-    size_t allocated_size() const { return _alloc_size; }
+    size_t allocated_size() const
+    {
+        return _alloc_size;
+    }
 
     // iterators for range based for
-    RAO_iterator<T> begin() { return RAO_iterator<T>(&_data[0]); }
-    RAO_iterator<T> end() { return RAO_iterator<T>(&_data[_size]); }
+    RAO_iterator<T> begin()
+    {
+        return RAO_iterator<T>(&_data[0]);
+    }
+    RAO_iterator<T> end()
+    {
+        return RAO_iterator<T>(&_data[_size]);
+    }
 
     // is it empty?
-    bool empty() { return _size == 0; }
+    bool empty()
+    {
+        return _size == 0;
+    }
 
     // reallocate more space or do nothing
     void reserve(size_t new_size)
     {
-        if (new_size > capacity()) {
+        if(new_size > capacity()) {
             T* new_data = new T[new_size + 1];
             // we are speaking about capacity
             // so we need one more element in the array
@@ -116,13 +146,13 @@ class Vector
     // append an element
     void push_back(T element)
     {
-        if (_alloc_size == 0) {
+        if(_alloc_size == 0) {
             // if there are no elements then one does not simply multiply
             _alloc_size = std::round(magnifier);
             _data = new T[_alloc_size];
             _data[0] = element;
             ++_size;
-        } else if (_size == capacity()) {
+        } else if(_size == capacity()) {
             // if there isn't enough space then get some more
             _alloc_size = std::round(_alloc_size * magnifier);
             T* new_data = new T[_alloc_size];
@@ -141,7 +171,7 @@ class Vector
     // the function that clears the unused space via reallocation
     void shrink_to_fit()
     {
-        if (_size == capacity()) {
+        if(_size == capacity()) {
             return; // if the vector is maxed out then do nothing
         }
         _alloc_size = _size + 1;
@@ -155,11 +185,11 @@ class Vector
     void insert(size_t index, const T& element, size_t el_count = 1)
     {
         // firstly check if the index is in the vector
-        if (index < _size) {
-            if (_size + el_count - 1 < capacity()) {
+        if(index < _size) {
+            if(_size + el_count - 1 < capacity()) {
                 // if the capacity is enough to store the vector+new_elements
                 // then just shift all elements after the defined index
-                for (size_t i = _size - 1; i >= index; --i) {
+                for(size_t i = _size - 1; i >= index; --i) {
                     _data[i + el_count] = _data[i];
                 }
             } else {
@@ -174,7 +204,7 @@ class Vector
                 delete[] _data;
                 _data = new_data;
             }
-            for (size_t i = index; i < index + el_count; ++i) {
+            for(size_t i = index; i < index + el_count; ++i) {
                 _data[i] = element;
             }
             _size += el_count;
@@ -184,12 +214,32 @@ class Vector
         }
     }
 
-    void erase(RAO_iterator<T> iter) {}
-    void erase(RAO_iterator<T> iter_first, RAO_iterator<T> iter_last) {}
+    void erase(RAO_iterator<T> iter)
+    {
+        if(empty()) {
+            return;
+        }
+        size_t copy_offset = distance(begin(), iter);
+        size_t ref_offset = copy_offset + 1;
+        --_size;
+        copy_data_to(_data, _size, ref_offset, copy_offset);
+    }
+
+    void erase(RAO_iterator<T> iter_first, RAO_iterator<T> iter_last)
+    {
+        if(empty()) {
+            return;
+        }
+        size_t esize = distance(iter_first, iter_last);
+        size_t csize = distance(iter_last, end());
+        size_t begin_pos = distance(begin(), iter_first);
+        copy_data_to(_data, csize, begin_pos + esize, begin_pos);
+        _size -= esize;
+    }
 
     void pop_back()
     {
-        if (_size != 0) {
+        if(empty()) {
             --_size; // just say we have one element less
         }
     }
@@ -203,9 +253,9 @@ class Vector
      * This behavior is somewhat different comparing to STL
      */
     {
-        if (new_size == _size)
+        if(new_size == _size)
             return;
-        if (new_size >= _alloc_size) {
+        if(new_size >= _alloc_size) {
             T* new_data = new T[new_size + 1];
             copy_data_to(new_data, _size);
             delete[] _data;
@@ -223,17 +273,20 @@ class Vector
         _alloc_size = 0;
     }
 
-    ~Vector() { delete[] _data; }
+    ~Vector()
+    {
+        delete[] _data;
+    }
 
     Vector<T>& operator=(Vector& vec)
     {
-        if (_data != nullptr)
+        if(_data != nullptr)
             delete[] _data;
         _size = vec._size;
         _alloc_size = _size; // creating a copy only of defined elements
-        if (_alloc_size > 0) {
+        if(_alloc_size > 0) {
             _data = new T[_alloc_size];
-            for (size_t i = 0; i < _size; ++i) {
+            for(size_t i = 0; i < _size; ++i) {
                 _data[i] = vec._data[i];
             }
         } else {
