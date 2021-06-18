@@ -21,8 +21,7 @@
 
 #include "rao_iterator.hpp"
 
-template<typename T>
-class Vector
+template<typename T> class Vector
 {
     T* _data;
     size_t _size;
@@ -48,14 +47,14 @@ class Vector
         _alloc_size = 0;
     }
 
-    Vector(const size_t& size, float custom_magnifier = 1.5)
+    explicit Vector(const size_t& size, float custom_magnifier = 1.5)
     {
         magnifier = custom_magnifier;
         _alloc_size = size;
         _data = new T[size];
     }
 
-    Vector(const Vector& origin_v, float custom_magnifier = 1.5)
+    explicit Vector(const Vector& origin_v, float custom_magnifier = 1.5)
     {
         // copy constructor, note the copy is not really equal to the ref.
         magnifier = custom_magnifier;
@@ -273,11 +272,6 @@ class Vector
         _alloc_size = 0;
     }
 
-    ~Vector()
-    {
-        delete[] _data;
-    }
-
     Vector<T>& operator=(Vector& vec)
     {
         if(_data != nullptr)
@@ -294,8 +288,13 @@ class Vector
         }
         return *this;
     }
-    template<typename TF>
-    friend void swap(Vector<TF>& v0, Vector<TF>& v1);
+
+    template<typename TF> friend void swap(Vector<TF>& v0, Vector<TF>& v1);
+
+    ~Vector()
+    {
+        delete[] _data;
+    }
 };
 
 template<typename TF>
