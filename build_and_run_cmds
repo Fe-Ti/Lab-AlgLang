@@ -1,9 +1,10 @@
 echo [....] Building...
-if [ ! -e $PRJ_NAME ] | [ $REBUILD = "1" ]
+if [ ! -e $PRJ_NAME ] || [ $REBUILD = "1" ]
 then
-	g++ -Wall --pedantic --pedantic *.cpp -o $PRJ_NAME
+	g++ $COMPILE_OPTS -Wall --pedantic --pedantic *.cpp -o $PRJ_NAME
 	RET_VAL=$?
 else
+	echo "[....] File exists"
 	RET_VAL=0
 fi
 
@@ -16,12 +17,10 @@ else
 	if [ $RUN_SIMPLE = "1" ]
 	then
 		echo Running $PRJ_NAME without valgrind
-		sleep 1
 		./$PRJ_NAME $cmd
 	elif [ $RUN_VALGRIND = "1" ] 
 	then
 		echo Running with valgrind.
-		sleep 1
 		valgrind ./$PRJ_NAME $cmd
 	fi
 fi

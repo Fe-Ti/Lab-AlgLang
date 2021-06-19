@@ -6,4 +6,5 @@ RUN_SIMPLE=1
 RUN_VALGRIND=1
 cmd=""
 REBUILD=1
+COMPILE_OPTS=""
 source ../../build_and_run_cmds
