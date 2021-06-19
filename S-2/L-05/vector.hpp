@@ -32,7 +32,7 @@ template<typename T> class Vector
     void copy_data_to(T* new_data,
                       size_t csize,
                       size_t ref_offset = 0,
-                      size_t copy_offset = 0) // internal function
+                      size_t copy_offset = 0) const // internal function
     {
         for(size_t i = 0; i < csize; ++i) {
             new_data[i + copy_offset] = _data[i + ref_offset];
@@ -47,11 +47,12 @@ template<typename T> class Vector
         _alloc_size = 0;
     }
 
-    explicit Vector(const size_t& size, float custom_magnifier = 1.5)
+    explicit Vector(const size_t& new_size, float custom_magnifier = 1.5)
     {
         magnifier = custom_magnifier;
-        _alloc_size = size;
-        _data = new T[size];
+        _size = 0;
+        _alloc_size = new_size + 1;
+        _data = new T[_alloc_size];
     }
 
     explicit Vector(const Vector& origin_v, float custom_magnifier = 1.5)
@@ -66,8 +67,10 @@ template<typename T> class Vector
 
     T& at(const size_t& index) // get element by its position
     {
-        if(index > size())
-            throw std::out_of_range(); // throw an exception
+        if(index >= size())
+            throw std::out_of_range(
+              "Access of non-existent item (index >= size()).");
+        // throw an exception
         return _data[index];
     }
 
@@ -238,7 +241,7 @@ template<typename T> class Vector
 
     void pop_back()
     {
-        if(empty()) {
+        if(!empty()) {
             --_size; // just say we have one element less
         }
     }
@@ -254,7 +257,7 @@ template<typename T> class Vector
     {
         if(new_size == _size)
             return;
-        if(new_size >= _alloc_size) {
+        if(new_size > capacity()) {
             T* new_data = new T[new_size + 1];
             copy_data_to(new_data, _size);
             delete[] _data;
@@ -299,11 +302,20 @@ template<typename T> class Vector
 
 template<typename TF>
 void
-swap(Vector<TF>& v0, Vector<TF>& v1)
+swap(Vector<TF>& v0,
+     Vector<TF>& v1) // swapping contents (magnifiers are not swapped)
 {
     TF* tmp = v0._data;
     v0._data = v1._data;
     v1._data = tmp;
+
+    size_t tmp_size = v0._size;
+    v0._size = v1._size;
+    v1._size = tmp_size;
+
+    tmp_size = v0._alloc_size;
+    v0._alloc_size = v1._alloc_size;
+    v1._alloc_size = tmp_size;
 }
 
 #endif

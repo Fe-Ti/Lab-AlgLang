@@ -7,7 +7,7 @@
 
 #include "vector.hpp"
 
-class some_exception : std::exception
+class some_exception : public std::exception
 {
   public:
     char _what[27];

@@ -1,5 +1,6 @@
 #!/bin/bash
-
+# Copyright 2021 Fe-Ti <btm.007@mail.ru>
+# build script V1
 echo [....] Building...
 if [ ! -e main ]
 then
@@ -14,11 +15,11 @@ then
 	echo [1A[fail] $RET_VAL
 else
 	echo [1A[ ok ]
-	echo Running without vallgrind
+	echo Running without valgrind
 	sleep 2
 	./main 0
 
-	echo Running with vallgrind.
+	echo Running with valgrind.
 	sleep 2
 	valgrind ./main 1
 fi

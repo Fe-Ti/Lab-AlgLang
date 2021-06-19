@@ -1,0 +1,28 @@
+echo [....] Building...
+if [ ! -e $PRJ_NAME ] | [ $REBUILD = "1" ]
+then
+	g++ -Wall --pedantic --pedantic *.cpp -o $PRJ_NAME
+	RET_VAL=$?
+else
+	RET_VAL=0
+fi
+
+
+if [ $RET_VAL -ne 0 ]
+then
+	echo [1A[fail] $RET_VAL
+else
+	echo [1A[ ok ]
+	if [ $RUN_SIMPLE = "1" ]
+	then
+		echo Running $PRJ_NAME without valgrind
+		sleep 1
+		./$PRJ_NAME $cmd
+	elif [ $RUN_VALGRIND = "1" ] 
+	then
+		echo Running with valgrind.
+		sleep 1
+		valgrind ./$PRJ_NAME $cmd
+	fi
+fi
+
