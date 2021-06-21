@@ -148,7 +148,7 @@ main(int argc, char** argv)
         std::cout << "QC_b: " << ref_vec << std::endl;
         std::cout << "QC_a: " << vec << std::endl;
     }
-    std::cout << "Time........: " << mtt << "us" << std::endl;
+    std::cout << "Time........: " << mtt << " us" << std::endl;
     std::cout << "Vector size.: " << vec.size() << " elements" << std::endl;
     std::cout << "Block size..: " << s_lim << " elements" << std::endl;
     std::cout << "Thread count: " << t_count << std::endl;
