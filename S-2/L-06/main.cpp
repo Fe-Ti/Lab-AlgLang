@@ -104,6 +104,17 @@ merge(std::vector<int64_t>& vec,
         }
     }
 }
+template<typename T>
+std::string
+check_result(std::vector<T> v)
+{
+    for(size_t i = 1; i < v.size(); ++i) {
+        if(comp(v[i], v[i - 1])) {
+            return std::string("Error on " + std::to_string(i) + " position!");
+        }
+    }
+    return std::string("No errors detected.");
+}
 
 int
 main(int argc, char** argv)
@@ -124,17 +135,18 @@ main(int argc, char** argv)
         }
         std::cout << "Enter thread count:" << std::endl;
         std::cin >> t_count;
-        std::cout << "Enter block size:" << std::endl;
-        std::cin >> s_lim;
     }
     if(argc > 3) {
         s_lim = std::atoi(argv[3]);
+    } else {
+        std::cout << "Enter block size:" << std::endl;
+        std::cin >> s_lim;
     }
 
     std::srand(std::time(nullptr));
     std::vector<int64_t> vec;
     for(size_t i = 0; i < elem_count; ++i)
-        vec.push_back(std::rand() % 50);
+        vec.push_back(std::rand() % 5000);
     std::vector<int64_t> ref_vec = vec;
 
     auto start_mt = std::chrono::steady_clock::now();
@@ -144,7 +156,7 @@ main(int argc, char** argv)
       std::chrono::duration_cast<std::chrono::microseconds>(end_mt - start_mt)
         .count();
 
-    if(vec.size() < 30) {
+    if(vec.size() < 101) {
         std::cout << "QC_b: " << ref_vec << std::endl;
         std::cout << "QC_a: " << vec << std::endl;
     }
@@ -152,6 +164,7 @@ main(int argc, char** argv)
     std::cout << "Vector size.: " << vec.size() << " elements" << std::endl;
     std::cout << "Block size..: " << s_lim << " elements" << std::endl;
     std::cout << "Thread count: " << t_count << std::endl;
+    std::cout << "Result......: " << check_result(vec) << std::endl;
     std::cout << std::endl;
 
     return 0;

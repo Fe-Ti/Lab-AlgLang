@@ -7,11 +7,11 @@ RUN_VALGRIND=0
 REBUILD=0
 COMPILE_OPTS=" -pthread "
 
-for s in 2 4 6 8 16 32 64
+for s in 2 #4 6 8 16 32 64
 do
-for t in 1 2 3 4 5 6 7 8
+for t in 1 2 3 4 # 5 6 7 8
 do
-	for l in 10 100 1000 10000 100000 1000000
+	for l in 100000 1000000 # 1000 10000 100000 1000000
 	do
 		cmd=" ${l} ${t} ${s}"
 		source ../../build_and_run_cmds
